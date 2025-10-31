@@ -15,10 +15,10 @@ public class Blackjack {
     public static void main(String[] args) {
 
         // input nb players
-        int nbPlayer = getPlayer();
+        int nbPlayer = getNbPlayer();
 
         // intput nb packs
-        int nbPack = getPack();
+        int nbPack = getNbPack();
 
         // lancement d'une séance de jeux
         double [][] infos = playGame(nbPlayer, nbPack);
@@ -33,33 +33,37 @@ public class Blackjack {
 
     }
 
-    public static int getPlayer() {
-        // input nb players
+
+    // ---------- Méthode get infos ---------- //
+    public static int getNbPlayer() {
+        // get input nb players
         int nbPlayer = 0;
         do {
             output.print("Donner le nombre de joueurs (entre 1 et 6) : ");
-            nbPlayer = input.nextInt();
+            nbPlayer = input.nextInt(); // on demande la valeur
             if (nbPlayer < 1  || nbPlayer > 6) {
                 output.println("Réponse incorrecte !");
             }
-        } while (nbPlayer < 1 || nbPlayer > 6);
+        } while (nbPlayer < 1 || nbPlayer > 6); // on boucle tant que c'est pas bon
 
         return nbPlayer;
     }
 
-    public static int getPack() {
+    public static int getNbPack() {
         // intput nb packs
         int nbPack = 0;
         do {
             output.print("Donner le nombre de paquets de 52 cartes utilisés (entre 1 et 8) : ");
-            nbPack = input.nextInt();
+            nbPack = input.nextInt(); // on demande la valeur
             if (nbPack < 1 || nbPack > 8) {
                 output.println("Réponse incorrecte !");
             }
-        } while (nbPack < 1 || nbPack > 8);
+        } while (nbPack < 1 || nbPack > 8); // on boucle tant que c'est pas bon
 
         return nbPack;
     }
+
+
 
     public static double[] soldePlayer(int nbPlayer) {
         // get solde players
