@@ -21,8 +21,15 @@ public class Blackjack {
         int nbPack = getPack();
 
         // lancement d'une séance de jeux
-        playGame(nbPlayer, nbPack);
+        double [][] infos = playGame(nbPlayer, nbPack);
 
+        // affichage infos
+        for(double[] ligne:infos){
+            for(double elt:ligne)  {
+                output.print(elt + " ");
+            }
+            output.println();
+        }
 
     }
 
@@ -222,7 +229,7 @@ public class Blackjack {
         return (getIntValueCard(main[0]) + getIntValueCard(main[1]) == 21) ? true:false;
     }
 
-    public static void playGame(int nbPlayer, int nbPack) {
+    public static double[][] playGame(int nbPlayer, int nbPack) {
         // player online
         boolean[] onlinePlayer = new boolean[nbPlayer];
         for(int i = 0; i < nbPlayer; i++) {
@@ -415,7 +422,7 @@ public class Blackjack {
                         } else {
                             //cas 5
                             if (ptsPlayer == ptsCroupier) { // cas 1
-                                output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta mise, soit %.2f Euros", tabMise[i]));
+                                output.println(String.format("Le croupier et toi avait fait le meme nombre, tu récupères ta mise, soit %.2f Euros", tabMise[i]));
                                 tabsoldeActuel[i] += tabMise[i];
                                 output.println(String.format("Ton solde est de %.2f", tabsoldeActuel[i]));
                             } else if (ptsPlayer > ptsCroupier) { // cas 4
@@ -443,5 +450,8 @@ public class Blackjack {
 
         output.println();
         output.println("Et le combat cessa faute de combattants.");
+
+        double[][] infos = {tabsoldeStart, tabsoldeActuel};
+        return infos;
     }
 }
