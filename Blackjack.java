@@ -14,6 +14,7 @@ public class Blackjack {
 
     public static void main(String[] args) {
 
+
         // input nb players
         int nbPlayer = getNbPlayer();
 
@@ -97,7 +98,7 @@ public class Blackjack {
 
 
     // ---------- Méthode utilitaires ---------- //
-    public static void schuffleTab(int[] tab) {
+    public static void shuffleCards(int[] tab) {
         // méthode pour mélanger le deck
         int l = tab.length;
         for(int i = 0; i< l*2; i++) {
@@ -110,7 +111,7 @@ public class Blackjack {
         }
     }
 
-    public static int[] makeDeck(int nbPacks) {
+    public static int[] generateCards(int nbPacks) {
         // méthode pour former de deck de cartes
         int types = 4;
         int[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}; // Jack 11 / Queen 12 / King 13
@@ -161,13 +162,13 @@ public class Blackjack {
 
     public static String getMain(int[] mainPersonnage, int hideEnd) {
         // retourne la chain str dela main d'un personnage. Possibilité de caché des élément en partant de la fin
-        int nbCards = getNbCard(mainPersonnage);
+        int nbCards = mainPersonnage[0];
         String[] main = new String[nbCards];
-        for(int i = 0; i < nbCards; i++) {
-            if (nbCards - hideEnd > i) { // si les élément ne doivent pas être caché
-                main[i] = getStrValueCard(mainPersonnage[i]);
+        for(int i = 1; i <= nbCards; i++) {
+            if (nbCards - hideEnd > i-1) { // si les élément ne doivent pas être caché
+                main[i-1] = getStrValueCard(mainPersonnage[i]);
             } else {
-                main[i] = "?";
+                main[i-1] = "?";
             }
         }
 
@@ -192,14 +193,14 @@ public class Blackjack {
         int total = 0;
         int asCpt = 0;
 
-        for(int elt:main) { // on ajoute toutes les valeurs au max
-            if(elt == 1) {
+        for(int i = 1; i <= main[0]; i++) {// on ajoute toutes les valeurs au max
+            if(main[i] == 1) {
                 asCpt ++;
                 total += 11;
-            } else if(elt > 10 ) {
+            } else if(main[i] > 10 ) {
                 total += 10;
             } else {
-                total += elt;
+                total += main[i];
             }
         }
 
@@ -213,18 +214,10 @@ public class Blackjack {
 
     }
 
-    public static int getNbCard(int[] main) {
-        // permet de retourner le nombre de cartes dans une main donnée
-        int cpt = 0;
-        while(main[cpt] != 0) {
-            cpt++;
-        }
-        return cpt;
-    }
 
     public static  boolean isBlackJack(int[] main) {
         //permet de savoir s'il y a black jack ou non pour une main donnée
-        return getIntValueCard(main[0]) + getIntValueCard(main[1]) == 21;
+        return getIntValueCard(main[1]) + getIntValueCard(main[2]) == 21;
     }
 
     public static double[] collectBets(int nbPlayer, boolean[] active, double[] money) {
@@ -241,6 +234,20 @@ public class Blackjack {
             }
         }
         return tabbetPlayers;
+    }
+
+    public static int drawCard(int[] deck, int[] main) {
+        // méthode qui tire la carte suivante du deck l'ajoute à la main et la renvois avec return
+        int i = 0;
+        while(deck[i] == 0) {
+            i++;
+        }
+        int card = deck[i];
+        main[0]++; // ajout d'une carte dans le compteur
+        main[main[0]] = card; // on ajoute la carte
+        deck[i] = 0; // on enlève la carte du deck
+
+        return card;
     }
 
     public static boolean playRound(boolean[] active, double[] money, int[] deck) {
@@ -268,22 +275,27 @@ public class Blackjack {
 
         // 2 MÉLANGE ET DISTRIBUTION DES CARTES
 
-        schuffleTab(deck); // on (re)mélange de jeu
+        shuffleCards(deck); // on (re)mélange de jeu
 
 
         // création des main de chaque player (vide) + croupier
         int[][] cardPlayer = new int[nbPlayer][23]; // 23 --> consignes
         int[] cardCroupier = new int[23];
+        cardCroupier[0] = 2;
 
         // distribution des 2 premières cartes
-        int indexDeck = 0;
-        for(int i = 0; i < 2; i++) { // nombre de carte
-            for(int j = 0; j < nbPlayer; j++) { // affectation de la carte aux players
-                cardPlayer[j][i] = deck[indexDeck];
-                indexDeck++;
+        int indexDeckTempo = 0;
+        for(int i = 1; i <= 2; i++) { // nombre de carte
+            for(int j = 0; j < nbPlayer; j++) {// affectation de la carte aux players
+                if(i == 1) {
+                    cardPlayer[j][0] = 2; // nombre de carte par défault
+                }
+                cardPlayer[j][i] = deck[indexDeckTempo];
+                indexDeckTempo++;
+                deck[j+(i-1)*nbPlayer] = 0; // on remplace dans e deck pour dire que la carte est déjà pioché
             }
-            cardCroupier[i] = deck[indexDeck]; // afectation de la carte au croupier
-            indexDeck++;
+            cardCroupier[i] = deck[indexDeckTempo]; // afectation de la carte au croupier
+            indexDeckTempo++;
         }
 
         // -----------------------------------------------------------------------------------------------------------//
@@ -296,7 +308,6 @@ public class Blackjack {
         output.println("\nFaites vos jeux !\n"); // globale affiche
 
         for(int i = 0; i < nbPlayer; i++) {
-            int nbCards = 2;
             int nbPoint = getPoints(cardPlayer[i]);
 
             output.println(String.format("\n --> Tour du joueur %d", i+1));
@@ -319,10 +330,7 @@ public class Blackjack {
                     }
 
                     if(reponse.equalsIgnoreCase("oui")) {
-                        int card = deck[indexDeck];
-                        indexDeck ++;
-                        cardPlayer[i][nbCards] = card;
-                        nbCards++;
+                        int card = drawCard(deck, cardPlayer[i]);
 
                         nbPoint = getPoints(cardPlayer[i]);
 
@@ -337,7 +345,6 @@ public class Blackjack {
 
         //tour croupier
         int nbPointCroupier = getPoints(cardCroupier);
-        int nbCards = 2;
 
         output.println("\n--> Tour du croupier");
         mainCroupier = getMain(cardCroupier, 0);
@@ -345,10 +352,8 @@ public class Blackjack {
         output.println(String.format("Il a %d points.", nbPointCroupier));
 
         while (nbPointCroupier < 17) {
-            int card = deck[indexDeck];
-            indexDeck++;
-            cardCroupier[nbCards] = card;
-            nbCards ++;
+            int card = drawCard(deck, cardCroupier);
+
             nbPointCroupier = getPoints(cardCroupier);
 
             output.println(String.format("Le croupier a tiré un %s. Il a %d", getStrValueCard(card), nbPointCroupier));
@@ -455,13 +460,16 @@ public class Blackjack {
             money[i] = tabsoldeStart[i];
         }
 
-        // make sabot de jeu
-        int[] deck = makeDeck(nbPacks);
+
 
         // lancement du jeu + boucle tant qu'on joue
         boolean newGame;
         int cptGame = 0;
         do {
+
+            // make sabot de jeu
+            int[] deck = generateCards(nbPacks);
+
             cptGame++;
 
             // ------------ affichage ------------ //
@@ -476,7 +484,6 @@ public class Blackjack {
         output.println();
         output.println("Et le combat cessa faute de combattants.");
 
-        double[][] infos = {tabsoldeStart, money};
-        return infos;
+        return new double[][]{tabsoldeStart, money}; // forme apprise dans un mail de test
     }
 }
