@@ -6,22 +6,30 @@ import java.io.PrintStream;
 
 public class Blackjack {
 
-
+    // variables utilitaires de la class
     public static Scanner input = new Scanner(System.in).useLocale(Locale.US);
     public static PrintStream output = System.out;
     public static Random random = new Random();
 
+    //----------------------------------------------------------------------------------------------------------------//
+    //----------------------------------------------FONCTIONS PRINCIPALES---------------------------------------------//
+    //----------------------------------------------------------------------------------------------------------------//
 
+    /**
+     * Entry Point permettant de récupérer le nombre de joueurs, le nombre de paquets de 52 cartes et
+     * de lancer {@link #playGame(int, int) }.
+     * A la fin du jeu, le couple de liste est récupéré, contenant le solde de départ de chaque joueur et le solde actuel de chaque joueur.
+     * Le couple est envoyé dans la fonction {@link #àdefind } pour réaliser un affichage.
+     * */
     public static void main(String[] args) {
 
-
         // input nb players
-        int nbPlayer = getNbPlayer();
+        int nbPlayer = askInfosInt(1, 6, "Donner le nombre de joueurs (entre 1 et 6) : ");
 
         // intput nb packs
-        int nbPacks = getnbPacks();
+        int nbPacks = askInfosInt(1, 8, "Donner le nombre de paquets de 52 cartes utilisés (entre 1 et 8) : ");
 
-        // lancement d'une séance de jeux
+        // lancement d'une séance de jeu
         double [][] infos = playGame(nbPlayer, nbPacks);
 
         // affichage infos
@@ -31,49 +39,115 @@ public class Blackjack {
             }
             output.println();
         }
-
     }
 
 
-    // ---------- Méthode get infos ---------- //
-    public static int getNbPlayer() {
-        // get input nb players
-        int nbPlayer;
-        do {
-            output.print("Donner le nombre de joueurs (entre 1 et 6) : ");
-            nbPlayer = input.nextInt(); // on demande la valeur
-            if (nbPlayer < 1  || nbPlayer > 6) {
-                output.println("Réponse incorrecte !");
-            }
-        } while (nbPlayer < 1 || nbPlayer > 6); // on boucle tant que c'est pas bon
+    /**
+     * Fonction permettant de faire jouer x partie tant que les conditions le permettent.
+     * @param nbPlayer nombre de joueurs
+     * @param nbPacks nombre de paquet de 52 cartes
+     * @return Une matrice de double correspondant au solde de départ et au solde de fin de chaque joueurs
+     * @see #playRound(boolean[], double[], int[])
+     * */
+    public static double[][] playGame(int nbPlayer, int nbPacks) {
 
-        return nbPlayer;
-    }
+        // player online
+        boolean[] active = new boolean[nbPlayer];
+        for(int i = 0; i < nbPlayer; i++) {
+            active[i] = true;
+        }
 
-    public static int getnbPacks() {
-        // intput nb packs
-        int nbPacks;
-        do {
-            output.print("Donner le nombre de paquets de 52 cartes utilisés (entre 1 et 8) : ");
-            nbPacks = input.nextInt(); // on demande la valeur
-            if (nbPacks < 1 || nbPacks > 8) {
-                output.println("Réponse incorrecte !");
-            }
-        } while (nbPacks < 1 || nbPacks > 8); // on boucle tant que c'est pas bon
-
-        return nbPacks;
-    }
-
-    public static double[] getSoldePlayer(int nbPlayer) {
         // get solde players
-        double[] tabsolde = new double[nbPlayer];
+        double[] tabsoldeStart = getSoldePlayer(nbPlayer); // ne change pas
+        double[] money = new double[nbPlayer]; // évolu tout au long de la game
+        for(int i = 0; i < nbPlayer; i++) {
+            money[i] = tabsoldeStart[i];
+        }
+
+        // make sabot de jeu
+        int[] deck = generateCards(nbPacks);
+
+
+        output.println("\nPREMIÈRE PARTIE\n"); // affichage
+
+        // boucle qui lance partie après partie tant que c'est possible (mise possible & player en ligne)
+        boolean newGame;
+        do {
+            newGame = playRound(active, money, deck); // un round (une partie)
+
+            if (newGame) { // seulement si on est sur une nouvelle game, si cloture par une mise de 0 alors on n'affiche rien
+                output.println("\nNOUVELLE PARTIE ?\n"); // affichage
+            }
+        } while(newGame);
+
+        output.println("\nEt le combat cessa faute de combattants."); // affichage
+
+        return new double[][]{tabsoldeStart, money}; // forme apprise dans un mail de test
+    }
+
+
+
+    //----------------------------------------------------------------------------------------------------------------//
+    //----------------------------------------------FONCTIONS SECONDAIRES---------------------------------------------//
+    //----------------------------------------------------------------------------------------------------------------//
+
+
+
+
+
+    /**
+     * Fonction permettant de demander un entier à l'utilisateur qui est compris entre deux bornes d'entier donné.
+     * Redemande tant que la valeur donnée est en dehors des bornes
+     * @param value1 la borne minimum
+     * @param value2 la borne maximum
+     * @param textInput text affiché lors de la demande de saisie à l'utilisateur
+     * @return La valeur saisie par l'utilisateur, respectant
+     * */
+    public static int askInfosInt(int value1, int value2, String textInput) {
+        int valeur;
+        do {
+            output.print(textInput);
+
+            // try except pour éviter que le programme se coupe si l'entrée est autre chose qu'un entier
+            try {
+                valeur = input.nextInt(); // on demande la valeur
+            } catch(Exception e) {
+                valeur = -1;
+            }
+
+            if (valeur < value1  || valeur > value2) {
+                output.println("Réponse incorrecte !");
+                input.nextLine(); // pour clear le buffer d'entrée
+            }
+        } while (valeur < value1 || valeur > value2); // on boucle tant que c'est pas bon
+
+        return valeur;
+    }
+
+
+    /**
+     * Fonction permettant de récuperer tout les soldes de tout les joueurs de la partie.
+     * @param nbPlayer nombre de joueurs
+     * @return un tableau de double contenant tout les solde initiaux
+     * */
+    public static double[] getSoldePlayer(int nbPlayer) {
+        double[] tabsolde = new double[nbPlayer]; // tableau vide
         for(int i = 0; i < nbPlayer; i++) {
             double solde;
+
+            // demande du solde à chaque player
             do {
                 output.print(String.format("Donner la solde en Euros que possède le joueur %d (entre 1.0 et 1000000.0) : ", i+1));
-                solde = input.nextDouble();
+
+                //try except pour éviter que le script s'arette si la saisie n'est pas un double.
+                try {
+                    solde = input.nextDouble();
+                } catch (Exception e) {
+                    solde = 0;
+                }
                 if(solde < 1.0 || solde > 1000000.0) {
                     output.println("Réponse incorrecte !");
+                    input.nextLine(); // pour clear le buffer d'entrée
                 }
             } while (solde < 1.0 || solde > 1000000.0); // on boucle tant que c'est pas bon
             tabsolde[i] = solde;
@@ -82,46 +156,69 @@ public class Blackjack {
         return  tabsolde;
     }
 
-    public static double getbetPlayer(int i, double soldeDuPlayer) {
+    /**
+     * Fonction permettant de collecter toutes les mises de chaque joueurs qui joue.
+     * Si la mise n'est pas dans l'interval attendu alors elle st redemandé.
+     * Si la mise est égale à 0, alors le joueurs n'est plus considéré comme en jeu et ne sera plus pris en compte
+     * @param active tableau de tout les joueurs qui joue ou non
+     * @param money tableau avec tout les soldes actuels des joueurs
+     * @param bet tableau de toutes les mises de chaque joueurs qui joue
+     * */
+    public static void collectBets(boolean[] active, double[] money, double[] bet) {
         // get bet player
-        double bet;
-        do {
-            output.print(String.format("Joueur %d , donne ta mise en Euros (entre 0.0 et %.2f ) : ", i+1, soldeDuPlayer));
-            bet = input.nextDouble();
-            if(bet < 0 || bet > soldeDuPlayer) {
-                output.println("Réponse incorrecte !");
-            }
-        } while ( bet < 0 || bet > soldeDuPlayer); // on boucle tant que c'est pas bon
+        double saisieBet;
+        for(int i = 0; i < active.length; i++) {
+            if(active[i] && money[i] > 0) {
+                do {
+                    output.print(String.format("Joueur %d , donne ta mise en Euros (entre 0.0 et %.2f ) : ", i+1, money[i]));
 
-        return bet;
+                    try {
+                        saisieBet = input.nextDouble();
+                    } catch (Exception e) {
+                        saisieBet = -1.0;
+                    }
+                    if(saisieBet == 0.0) {
+                        active[i] = false;
+                    } else if(saisieBet < 0 || saisieBet > money[i]) {
+                        output.println("Réponse incorrecte !");
+                        input.nextLine(); // pour clear le buffer d'entrée
+                    }
+                } while ( saisieBet < 0 || saisieBet > money[i]); // on boucle tant que c'est pas bon
+
+                bet[i] = saisieBet; // ajout le la mise dans la liste des mises
+                money[i] -= saisieBet;
+            }
+        }
+
+
     }
 
 
     // ---------- Méthode utilitaires ---------- //
-    public static void shuffleCards(int[] tab) {
+    public static void shuffleCards(int[] deck) {
         // méthode pour mélanger le deck
-        int l = tab.length;
+        int l = deck.length;
         for(int i = 0; i< l*2; i++) {
-            int indice1 = random.nextInt(0, l-1);
-            int indice2 = random.nextInt(0, l-1);
+            int indice1 = random.nextInt(1, l-1);
+            int indice2 = random.nextInt(1, l-1);
 
-            int tempo = tab[indice1];
-            tab[indice1] = tab[indice2];
-            tab[indice2] = tempo;
+            int tempo = deck[indice1];
+            deck[indice1] = deck[indice2];
+            deck[indice2] = tempo;
         }
+        deck[0] = 0; // reset de l'indice pour savoir qu'elle est la prochaine carte à piocher
     }
 
     public static int[] generateCards(int nbPacks) {
         // méthode pour former de deck de cartes
-        int types = 4;
         int[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}; // Jack 11 / Queen 12 / King 13
 
-        int[] deck = new int[52*nbPacks]; // jeu de 52 cartes
+        int[] deck = new int[52*nbPacks +1]; // jeu de 52 cartes * n + 1 pour l'indice
 
         for(int i = 0; i < nbPacks; i++) {
-            for(int j = 0; j< types; j++) {
-                for(int k = 0; k < values.length; k++) {
-                    deck[i*52 + j*13 + k] = values[k];
+            for(int j = 0; j< 4; j++) {
+                for(int k = 0; k < 13; k++) {
+                    deck[i*52 + j*13 + k +1] = values[k];
                 }
             }
         }
@@ -162,7 +259,7 @@ public class Blackjack {
 
     public static String getMain(int[] mainPersonnage, int hideEnd) {
         // retourne la chain str dela main d'un personnage. Possibilité de caché des élément en partant de la fin
-        int nbCards = mainPersonnage[0];
+        int nbCards = cardsNumber(mainPersonnage);
         String[] main = new String[nbCards];
         for(int i = 1; i <= nbCards; i++) {
             if (nbCards - hideEnd > i-1) { // si les élément ne doivent pas être caché
@@ -193,7 +290,7 @@ public class Blackjack {
         int total = 0;
         int asCpt = 0;
 
-        for(int i = 1; i <= main[0]; i++) {// on ajoute toutes les valeurs au max
+        for(int i = 1; i <= cardsNumber(main); i++) {// on ajoute toutes les valeurs au max
             if(main[i] == 1) {
                 asCpt ++;
                 total += 11;
@@ -220,36 +317,46 @@ public class Blackjack {
         return getIntValueCard(main[1]) + getIntValueCard(main[2]) == 21;
     }
 
-    public static double[] collectBets(int nbPlayer, boolean[] active, double[] money) {
-        double[] tabbetPlayers = new double[nbPlayer];
-        for(int i = 0; i < nbPlayer; i++) {
-            if(active[i] && money[i] > 0) { // si le joueur est encore en ligne / a encore de l'argent pour joueur
-                double bet = getbetPlayer(i, money[i]);
-                if (bet > 0) {
-                    tabbetPlayers[i] = bet;
-                    money[i] -= bet;
-                } else {
-                    active[i] = false; // bet nulle, le joueur arrete de jouer
-                }
+
+
+
+    public static void dealInitialCards(boolean[] playerIsActive, int[][] playerHand, int[] dealerHand, int[] deck) {
+        int nbPlayer = playerIsActive.length;
+        for(int i = 1; i <= 2; i++) { // nombre de carte
+            for(int j = 0; j < nbPlayer; j++) {// affectation de la carte aux players
+                drawCard(deck, playerHand[j]);
             }
+            drawCard(deck, dealerHand); // afectation de la carte au croupier
         }
-        return tabbetPlayers;
     }
 
-    public static int drawCard(int[] deck, int[] main) {
+    public static int drawCard(int[] deck, int[] hand) {
         // méthode qui tire la carte suivante du deck l'ajoute à la main et la renvois avec return
-        int i = 0;
-        while(deck[i] == 0) {
-            i++;
-        }
-        int card = deck[i];
-        main[0]++; // ajout d'une carte dans le compteur
-        main[main[0]] = card; // on ajoute la carte
-        deck[i] = 0; // on enlève la carte du deck
-
+        int card = getNextCard(deck);
+        hand[0]++; // ajout d'une carte dans le compteur
+        hand[hand[0]] = card; // on ajoute la carte
         return card;
     }
 
+    public static int getNextCard(int[] deck) {
+        deck[0]++; // on ajoute 1 pour définir l'indice de la carete suivante lors du prochain tirage
+        int card = deck[deck[0]];
+        return card;
+    }
+
+    // retourne le nombre de cartes d'un tableau de cartes
+    // (notez que T[0] est le nombre effectif de cartes et n'est donc pas une carte)
+    public static int cardsNumber(int[] tab) {
+        return tab[0];
+    }
+
+
+    //----------------------------------------------------------------------------------------------------------------//
+    //----------------------------------------------ZONE DE TRAVAIL PAS BO--------------------------------------------//
+    //----------------------------------------------------------------------------------------------------------------//
+
+
+    // méthodes à opti et à rendre propre
     public static boolean playRound(boolean[] active, double[] money, int[] deck) {
         // 0 Utilitaires
 
@@ -264,39 +371,25 @@ public class Blackjack {
         output.println("Pour arrêter de jouer, choisir la mise 0, cet arrêt sera définitif.\nSinon, choisir une bet strictement positive.\n");
 
         // Chaque joueur annonce et paie sa bet
-        double[] betPlayers = collectBets (nbPlayer, active, money);
+        double[] bet = new double[active.length];
+        collectBets(active, money, bet); // call de la fonction
 
         // vérification si tout le monde joue encore
         if(!playersRemain(active)) { // ferme le round
             return false;
         }
-
         // -----------------------------------------------------------------------------------------------------------//
 
         // 2 MÉLANGE ET DISTRIBUTION DES CARTES
 
         shuffleCards(deck); // on (re)mélange de jeu
 
-
         // création des main de chaque player (vide) + croupier
         int[][] cardPlayer = new int[nbPlayer][23]; // 23 --> consignes
         int[] cardCroupier = new int[23];
-        cardCroupier[0] = 2;
 
         // distribution des 2 premières cartes
-        int indexDeckTempo = 0;
-        for(int i = 1; i <= 2; i++) { // nombre de carte
-            for(int j = 0; j < nbPlayer; j++) {// affectation de la carte aux players
-                if(i == 1) {
-                    cardPlayer[j][0] = 2; // nombre de carte par défault
-                }
-                cardPlayer[j][i] = deck[indexDeckTempo];
-                indexDeckTempo++;
-                deck[j+(i-1)*nbPlayer] = 0; // on remplace dans e deck pour dire que la carte est déjà pioché
-            }
-            cardCroupier[i] = deck[indexDeckTempo]; // afectation de la carte au croupier
-            indexDeckTempo++;
-        }
+        dealInitialCards(active, cardPlayer, cardCroupier, deck);
 
         // -----------------------------------------------------------------------------------------------------------//
 
@@ -312,7 +405,7 @@ public class Blackjack {
 
             output.println(String.format("\n --> Tour du joueur %d", i+1));
             String mainPlayer = getMain(cardPlayer[i], 0);
-            output.println(String.format("Joueur %d : solde = %.2f € / mise = %.2f € / cartes : %s ",i+1, money[i], betPlayers[i], mainPlayer));
+            output.println(String.format("Joueur %d : solde = %.2f € / mise = %.2f € / cartes : %s ",i+1, money[i], bet[i], mainPlayer));
             output.println(String.format("Tu as %d points.", nbPoint));
 
             // si pts sup à 21 on affiche un texte alténatif, sinon on demande de tirer une nouvelle carte
@@ -379,17 +472,17 @@ public class Blackjack {
 
             output.println(String.format("\nRésultat du joueur n°%d", i+1));
             String mainPlayer = getMain(cardPlayer[i], 0);
-            output.println(String.format("solde = %.2f € / bet = %.2f € / cartes : %s ",money[i], betPlayers[i], mainPlayer));
+            output.println(String.format("solde = %.2f € / bet = %.2f € / cartes : %s ",money[i], bet[i], mainPlayer));
             output.println(String.format("Tu as %d points",ptsPlayer));
 
             if (isCroupierBlackJack) { // black jack du croupier
                 if (isPlayerBlackJack) { // player black jack
-                    money[i] += betPlayers[i];
+                    money[i] += bet[i];
                     // le player récupère sa bet
 
                     //cas 1
-                    output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta bet, soit %.2f Euros", betPlayers[i]));
-                    money[i] += betPlayers[i];
+                    output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta bet, soit %.2f Euros", bet[i]));
+                    money[i] += bet[i];
                     output.println(String.format("Ton solde est de %.2f", money[i]));
                 } else {
 
@@ -399,8 +492,8 @@ public class Blackjack {
                 }
             } else if (isPlayerBlackJack) {
                 // cas 3
-                output.println(String.format("Tu gagnes, tu récupères 3 fois ta bet, soit %.2f", betPlayers[i]*3));
-                money[i] += betPlayers[i]*3;
+                output.println(String.format("Tu gagnes, tu récupères 3 fois ta bet, soit %.2f", bet[i]*3));
+                money[i] += bet[i]*3;
                 output.println(String.format("Ton solde est de %.2f", money[i]));
 
             } else if (ptsPlayer > 21) {
@@ -411,19 +504,19 @@ public class Blackjack {
             } else if (ptsPlayer <= 21 && !isPlayerBlackJack) {
                 if (ptsCroupier > 21) {
                     //cas 4
-                    output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", betPlayers[i]*2.5));
-                    money[i] += betPlayers[i]*2.5;
+                    output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", bet[i]*2.5));
+                    money[i] += bet[i]*2.5;
                     output.println(String.format("Ton solde est de %.2f", money[i]));
 
                 } else {
                     //cas 5
                     if (ptsPlayer == ptsCroupier) { // cas 1
-                        output.println(String.format("Le croupier et toi avait fait le meme nombre, tu récupères ta bet, soit %.2f Euros", betPlayers[i]));
-                        money[i] += betPlayers[i];
+                        output.println(String.format("Le croupier et toi avait fait le meme nombre, tu récupères ta bet, soit %.2f Euros", bet[i]));
+                        money[i] += bet[i];
                         output.println(String.format("Ton solde est de %.2f", money[i]));
                     } else if (ptsPlayer > ptsCroupier) { // cas 4
-                        output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", betPlayers[i]*2.5));
-                        money[i] += betPlayers[i]*2.5;
+                        output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", bet[i]*2.5));
+                        money[i] += bet[i]*2.5;
                         output.println(String.format("Ton solde est de %.2f", money[i]));
                     } else { // cas 2
                         output.println("Tu perds contre le croupier, tu ne récupèrs rien.");
@@ -441,49 +534,10 @@ public class Blackjack {
             }
         }
 
+
         return playersRemain(active);
 
     }
 
-    public static double[][] playGame(int nbPlayer, int nbPacks) {
-        
-        // player online
-        boolean[] active = new boolean[nbPlayer];
-        for(int i = 0; i < nbPlayer; i++) {
-            active[i] = true;
-        }
-        
-        // get solde players
-        double[] tabsoldeStart = getSoldePlayer(nbPlayer); // ne change pas
-        double[] money = new double[nbPlayer]; // évolu tout au long de la game
-        for(int i = 0; i < nbPlayer; i++) {
-            money[i] = tabsoldeStart[i];
-        }
 
-
-
-        // lancement du jeu + boucle tant qu'on joue
-        boolean newGame;
-        int cptGame = 0;
-        do {
-
-            // make sabot de jeu
-            int[] deck = generateCards(nbPacks);
-
-            cptGame++;
-
-            // ------------ affichage ------------ //
-            output.println();
-            output.println(String.format("Partie n° %d", cptGame));
-            output.println();
-
-            newGame = playRound(active, money, deck);
-        } while(newGame);
-
-
-        output.println();
-        output.println("Et le combat cessa faute de combattants.");
-
-        return new double[][]{tabsoldeStart, money}; // forme apprise dans un mail de test
-    }
 }
