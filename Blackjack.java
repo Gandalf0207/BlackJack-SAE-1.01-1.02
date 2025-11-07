@@ -206,7 +206,7 @@ public class Blackjack {
             deck[indice1] = deck[indice2];
             deck[indice2] = tempo;
         }
-        deck[0] = 0; // reset de l'indice pour savoir qu'elle est la prochaine carte à piocher
+        deck[0] = deck.length-1; // reset de l'indice pour savoir qu'elle est la prochaine carte à piocher
     }
 
     public static int[] generateCards(int nbPacks) {
@@ -339,8 +339,8 @@ public class Blackjack {
     }
 
     public static int getNextCard(int[] deck) {
-        deck[0]++; // on ajoute 1 pour définir l'indice de la carete suivante lors du prochain tirage
         int card = deck[deck[0]];
+        deck[0]--; // on ajoute 1 pour définir l'indice de la carete suivante lors du prochain tirage
         return card;
     }
 
