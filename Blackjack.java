@@ -222,7 +222,7 @@ public class Blackjack {
                 }
             }
         }
-        deck[0] = 52; // début pour tirer une carte |- a garder car test dessus  | redéfinie dans le schuffle
+        deck[0] = deck.length-1; // début pour tirer une carte |- a garder car test dessus  | redéfinie dans le schuffle
         return deck;
     }
 
