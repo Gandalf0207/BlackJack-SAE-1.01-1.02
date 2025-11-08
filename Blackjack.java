@@ -222,6 +222,7 @@ public class Blackjack {
                 }
             }
         }
+        deck[0] = 52; // début pour tirer une carte |- a garder car test dessus  | redéfinie dans le schuffle
         return deck;
     }
 
@@ -312,51 +313,29 @@ public class Blackjack {
     }
 
 
-    public static void AffichageCas1(double pBet) {
-        // le player et le dealer ont fait blackJack, le player récupère sa mise
-        output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta mise, soit %.2f Euros", pBet));
-    }
-
-    public static void AffichageCas2() {
-        // le player a perdu contre le dealer, il ne récupère rien
-        output.println("Tu perds contre le croupier, tu ne récupères rien.");
-    }
-
-    public static void AffichageCas3(double pBet) {
-        // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-        output.println(String.format("Tu gagnes, tu récupères 3 fois ta bet, soit %.2f", pBet*3));
-    }
-
-    public static void AffichageCas4(double pBet) {
-        // le player gagne contre le croupier, il récupère 2.5 fois sa mise
-        output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", pBet*2.5));
-    }
-
-
     public static double playerNewMoney(double pMoney, double pBet, int pScore, int dealerScore) {
-
-        if ((dealerScore == 22 && pScore == 22) || (pScore == dealerScore && pScore != -1)) { // cas 1
-            AffichageCas1(pBet);
+        if (pScore > dealerScore) {
+            if (pScore==22) {
+                // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
+                output.println(String.format("Tu gagnes, tu récupères 3 fois ta bet, soit %.2f", pBet*3));
+                return pMoney + pBet * 3;
+            }
+            else {
+                // le player gagne contre le croupier, il récupère 2.5 fois sa mise
+                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", pBet*2.5));
+                return pMoney + pBet * 2.5;
+            }
+        }
+        else if (pScore == dealerScore) {
+            // le player et le dealer ont fait blackJack, le player récupère sa mise
+            output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta mise, soit %.2f Euros", pBet));
             return pMoney + pBet;
         }
-
-        if ((dealerScore == 22 && pScore != 22) || (pScore == -1) || (dealerScore >= pScore && dealerScore != 0)) { //cas 2
-            AffichageCas2();
+        else {
+            // le player a perdu contre le dealer, il ne récupère rien
+            output.println("Tu perds contre le croupier, tu ne récupères rien.");
             return pMoney;
         }
-
-        if (pScore == 22 && dealerScore != 22) { // cas 3
-            AffichageCas3(pBet);
-            return pMoney + pBet * 3;
-        }
-
-        if ((pScore > dealerScore) && (pScore != -1)) { // cas 4
-            AffichageCas4(pBet);
-            return pMoney + pBet * 2.5;
-        }
-
-        // pas défault on perds
-        return pMoney;
     }
 
     public static int minScore(int[] hand) {
@@ -582,7 +561,4 @@ public class Blackjack {
         return playersRemain(active);
 
     }
-
-
-
 }
