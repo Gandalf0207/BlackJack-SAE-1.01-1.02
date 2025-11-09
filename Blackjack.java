@@ -387,63 +387,43 @@ public class Blackjack {
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck){
 
         if (isPlayer) { // c'est un player
-            if (bestScore == 21) { // blackJack
-                output.println(String.format("Tu as fait BlackJack, tu as un %s. Tu as %d points", getMain(hand), bestScore));
-                return 22;
-            } else { // jeu normal
+            bestAffichagePlayerHand(0, minScore, bestScore);
 
-                if (minScore != bestScore) {
-                    output.println(String.format("Tu as %d ou %d points", minScore, bestScore));
-                } else {
-                    output.println(String.format("Tu as %d points", bestScore));
-                }
+            String reponse;
+            do {
 
-                String reponse;
-                do {
+                output.print("Veux-tu tirer une carte [oui/non] ? ");
+                reponse = input.next();
 
+                while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) { // element robuste de upper et lower
+                    output.println("Saisie incorrect !");
                     output.print("Veux-tu tirer une carte [oui/non] ? ");
                     reponse = input.next();
-
-                    while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) { // element robuste de upper et lower
-                        output.println("Saisie incorrect !");
-                        output.print("Veux-tu tirer une carte [oui/non] ? ");
-                        reponse = input.next();
-                    }
-
-                    if(reponse.equalsIgnoreCase("oui")) {
-                        int card = drawCard(deck, hand);
-
-                        minScore = minScore(hand);
-                        bestScore = bestScore(hand);
-
-                        if (minScore != bestScore) {
-                            output.println(String.format("Tu as tiré un %s. Tu as %d ou %d points", minScore, bestScore));
-                        } else {
-                            output.println(String.format("Tu as tiré un %s. Tu as %d points",cardName(card), bestScore));
-                        }
-
-
-                    }
-                } while(reponse.equalsIgnoreCase("oui") && bestScore < 21);
-
-                return (bestScore < 22) ? bestScore:-1;
-            }
-
-        } else { // c'est le croupier
-            if (bestScore == 21) { // blackJack
-                output.println(String.format("Le dearler a fait BlackJack, il a un %s. il a %d points", getMain(hand), bestScore));
-                return 22;
-            } else {
-                output.println(String.format("Il a %d points.", bestScore));
-
-                while (bestScore < 17) {
-                    int card = drawCard(deck, hand);
-                    bestScore = bestScore(hand);
-                    output.println(String.format("Le croupier a tiré un %s. Il a %d points", cardName(card), bestScore));
                 }
 
-                return (bestScore < 22) ? bestScore:0;
+                if(reponse.equalsIgnoreCase("oui")) {
+                    int card = drawCard(deck, hand);
+
+                    minScore = minScore(hand);
+                    bestScore = bestScore(hand);
+
+                    bestAffichagePlayerHand(card, minScore, bestScore);
+                }
+            } while(reponse.equalsIgnoreCase("oui") && bestScore < 21);
+
+            return (bestScore < 22) ? bestScore:-1;
+        }
+        else { // c'est le croupier
+            output.println(String.format("Il a %d points.", bestScore));
+
+            while (bestScore < 17) {
+                int card = drawCard(deck, hand);
+                bestScore = bestScore(hand);
+                output.println(String.format("Le croupier a tiré un %s. Il a %d points", cardName(card), bestScore));
             }
+
+            return (bestScore < 22) ? bestScore:0;
+
         }
     }
 
@@ -455,6 +435,67 @@ public class Blackjack {
         }
         output.println(String.format("\nLe croupier a les cartes %s et ?", cardName(dealerVisibleCard)));
 
+    }
+
+    public static void playTurn(int[] allScores, boolean[] active, double[] money, double[] bet, int[][] cardPlayer, int[] dealerHand, int[] deck) {
+        output.println("\nFaites vos jeux !\n"); // globale affichage
+
+        //players
+        for(int i = 0; i < active.length; i++) {
+            if(active[i]) {
+                allScores[i] = playerPlayTurn(i, money[i], bet[i], cardPlayer[i], deck);
+            }
+        }
+        // dealer
+        allScores[allScores.length-1] = dealerPlayTurn(dealerHand, deck);
+
+    }
+
+    public static int playerPlayTurn(int i, double pMoney, double pBet, int[] pHand, int[] deck) {
+        output.println(String.format("\n--> Tour du joueur %d", i+1));
+        displayPlayerGameState(i, pMoney, pBet, pHand);
+
+        int minScore = minScore(pHand);
+        int bestScore = bestScore(pHand);
+        boolean hasAnAce = hasAnAce(pHand);
+
+        if (bestScore == 21) {
+            displayBlackJack();
+            return 22;
+        }
+        else {
+            return playDrawingPhase(pHand, minScore, hasAnAce, bestScore, true, deck);
+        }
+    }
+
+    public static void bestAffichagePlayerHand(int card, int minScore, int bestScore) {
+
+        if(card != 0) { // on a pioché une carte
+            output.print(String.format("Tu as tiré un %s. ", cardName(card)));
+        }
+
+        // on affiche les pts que l'on a
+        if (minScore != bestScore) {
+            output.println(String.format("Tu as %d ou %d points", minScore, bestScore));
+        } else {
+            output.println(String.format("Tu as %d points", bestScore));
+        }
+
+    }
+
+    public static void displayPlayerGameState(int i, double pMoney, double pBet,int[] phand) {
+        output.println(String.format("Joueur %d : solde = %.2f € / mise = %.2f € / cartes : %s ",i+1, pMoney, pBet, getMain(phand)));
+    }
+
+    public static void displayBlackJack() {
+        output.println("BlackJack !");
+    }
+
+    public static int dealerPlayTurn(int[] dealerHand, int[] deck) {
+        //tour croupier
+        output.println("\n--> Tour du croupier");
+        output.println(String.format("Le croupier a les cartes %s", getMain(dealerHand)));
+        return playDrawingPhase(dealerHand, minScore(dealerHand), hasAnAce(dealerHand),bestScore(dealerHand), false, deck); // croupier automatique
     }
 
     //----------------------------------------------------------------------------------------------------------------//
@@ -501,26 +542,9 @@ public class Blackjack {
 
         // -----------------------------------------------------------------------------------------------------------//
 
-        // 3 TIRAGE DES CARTES
-
-
-        output.println("\nFaites vos jeux !\n"); // globale affichage
-
+        // 3 TIRAGE DES CARTES + JEUX (element play turn)
         int[] allScores = new int[active.length+1];
-
-        for(int i = 0; i < nbPlayer; i++) {
-            if(active[i]) {
-            output.println(String.format("\n --> Tour du joueur %d", i+1));
-            output.println(String.format("Joueur %d : solde = %.2f € / mise = %.2f € / cartes : %s ",i+1, money[i], bet[i], getMain(cardPlayer[i])));
-            allScores[i] = playDrawingPhase(cardPlayer[i], minScore(cardPlayer[i]), hasAnAce(cardPlayer[i]), bestScore(cardPlayer[i]), true, deck);
-            }
-        }
-
-        //tour croupier
-        output.println("\n--> Tour du croupier");
-        output.println(String.format("Le croupier a les cartes %s", getMain(cardCroupier)));
-        allScores[allScores.length-1] = playDrawingPhase(cardCroupier, minScore(cardCroupier), hasAnAce(cardCroupier),bestScore(cardCroupier), false, deck); // croupier automatique
-
+        playTurn(allScores, active, money, bet, cardPlayer, cardCroupier, deck);
 
         // -----------------------------------------------------------------------------------------------------------//
 
