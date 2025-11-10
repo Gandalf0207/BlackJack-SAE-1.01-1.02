@@ -181,6 +181,7 @@ public class Blackjack {
     //----------------------------------------------FONCTIONS SECONDAIRES---------------------------------------------//
     //----------------------------------------------------------------------------------------------------------------//
 
+
     public static int drawCard(int[] deck, int[] hand) {
         // méthode qui tire la carte suivante du deck l'ajoute à la main et la renvois avec return
         int card = getNextCard(deck);
