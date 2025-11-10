@@ -211,7 +211,7 @@ public class Blackjack {
 
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck){
 
-        if (isPlayer) { // c'est un player
+        if(isPlayer) { // c'est un player
             bestAffichagePlayerHand(0, minScore, bestScore);
 
             String reponse;
@@ -456,7 +456,7 @@ public class Blackjack {
         // renvoie la présence d'au moins un joueur pour joueur
         for(boolean player:active) {
             if(player){
-               return true;
+                return true;
             }
         }
         return false;
