@@ -102,7 +102,7 @@ public class Blackjack {
         // 1 ANNONCES ET PAIEMENT DES MISES
 
         output.println("Choix des mises\n");
-        output.println("Pour arrêter de jouer, choisir la mise 0, cet arrêt sera définitif.\nSinon, choisir une bet strictement positive.\n");
+        output.println("Pour arrêter de jouer, choisir la mise 0, cet arrêt sera définitif.\nSinon, choisir une mise strictement positive.\n");
 
         // Chaque joueur annonce et paie sa mise
         double[] bet = new double[active.length];
@@ -132,8 +132,8 @@ public class Blackjack {
 
 
         // 3 TIRAGE DES CARTES + JEUX
-        int[] allScores = new int[active.length+1]; // tableau des valeurs
-        playTurn(allScores, active, money, bet, cardPlayer, cardCroupier, deck);
+        int[] playerScore = new int[active.length]; // tableau des valeurs
+        int pointDealer = playTurn(active, money, bet, cardPlayer, cardCroupier, playerScore, deck);
 
 
 
@@ -141,27 +141,27 @@ public class Blackjack {
         // 4 PAIEMENT DES GAINS
 
         output.println("\n--> Résultats de la partie <--\n");
-        output.println(String.format("Le croupier a %d points\n", bestScore(cardCroupier)));
+        output.println(String.format("Le croupier a %d points.\n", bestScore(cardCroupier)));
 
         for(int i = 0; i < active.length; i++) {
             // variables utilitaires
-            int pScore = allScores[i];
-            int dealerScore =allScores[allScores.length-1];
+            int pScore = playerScore[i];
+            int dealerScore = pointDealer;
             double pBet = bet[i];
             double pMoney = money[i];
 
             // affichage des informations après le tour
             output.println(String.format("\nRésultat du joueur n°%d", i+1));
-            output.println(String.format("solde = %.2f € / bet = %.2f € / cartes : %s ",pMoney, pBet, getMain(cardPlayer[i])));
+            output.println(String.format("solde = %.2f € / bet = %.2f € / cartes : %s. ",pMoney, pBet, getMain(cardPlayer[i])));
             if(bestScore(cardPlayer[i]) > 21) {
-                output.println("Tu as dépassé 21 points");
+                output.println("Tu as dépassé 21 points.");
             } else {
-                output.println(String.format("Tu as %d points",bestScore(cardPlayer[i])));
+                output.println(String.format("Tu as %d points.",bestScore(cardPlayer[i])));
             }
 
             // mie à jour du solde des joueurs
             money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
-            output.println(String.format("Ton solde est de %.2f", money[i]));
+            output.println(String.format("Ton solde est de %.2f Euros.", money[i]));
         }
 
 
@@ -247,9 +247,9 @@ public class Blackjack {
                 int card = drawCard(deck, hand);
                 bestScore = bestScore(hand);
                 if (card == 12) {
-                    output.println(String.format("Le croupier a tiré une %s. Il a %d points", cardName(card), bestScore));
+                    output.println(String.format("Le croupier a tiré une %s. Il a %d points.", cardName(card), bestScore));
                 } else {
-                    output.println(String.format("Le croupier a tiré un %s. Il a %d points", cardName(card), bestScore));
+                    output.println(String.format("Le croupier a tiré un %s. Il a %d points.", cardName(card), bestScore));
                 }
             }
             if(bestScore > 21) {
@@ -259,17 +259,17 @@ public class Blackjack {
         }
     }
 
-    public static void playTurn(int[] allScores, boolean[] active, double[] money, double[] bet, int[][] cardPlayer, int[] dealerHand, int[] deck) {
+    public static int playTurn(boolean[] playerIsActive, double[] money, double[] bet, int [][] cardPlayer, int[] dealerHand, int[] playerScore, int[] deck) {
         output.println("\nFaites vos jeux !\n"); // globale affichage
 
         //players
-        for(int i = 0; i < active.length; i++) {
-            if(active[i]) {
-                allScores[i] = playerPlayTurn(i, money[i], bet[i], cardPlayer[i], deck);
+        for(int i = 0; i < playerIsActive.length; i++) {
+            if(playerIsActive[i]) {
+                playerScore[i] = playerPlayTurn(i, money[i], bet[i], cardPlayer[i], deck);
             }
         }
         // dealer
-        allScores[allScores.length-1] = dealerPlayTurn(dealerHand, deck);
+        return dealerPlayTurn(dealerHand, deck);
     }
 
     public static int playerPlayTurn(int i, double pMoney, double pBet, int[] pHand, int[] deck) {
@@ -292,20 +292,26 @@ public class Blackjack {
     public static int dealerPlayTurn(int[] dealerHand, int[] deck) {
         //tour croupier
         output.println("\n--> Tour du croupier");
-        output.println(String.format("Le croupier a les cartes %s", getMain(dealerHand)));
-        return playDrawingPhase(dealerHand, minScore(dealerHand), hasAnAce(dealerHand),bestScore(dealerHand), false, deck); // croupier automatique
+        output.println(String.format("Le croupier a les cartes %s.", getMain(dealerHand)));
+        if (bestScore(dealerHand) == 21) {
+            displayBlackJack();
+            return 22;
+        }
+        else {// croupier automatique
+            return playDrawingPhase(dealerHand, minScore(dealerHand), hasAnAce(dealerHand),bestScore(dealerHand), false, deck);
+        }
     }
 
     public static double playerNewMoney(double pMoney, double pBet, int pScore, int dealerScore) {
         if (pScore > dealerScore) {
             if (pScore==22) {
                 // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 3 fois ta bet, soit %.2f", pBet*3));
+                output.println(String.format("Tu gagnes, tu récupères 3 fois ta mise, soit %.2f Euros", pBet*3));
                 return pMoney + pBet * 3;
             }
             else {
                 // le player gagne contre le croupier, il récupère 2.5 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta bet, soit %.2f", pBet*2.5));
+                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %.2f Euros", pBet*2.5));
                 return pMoney + pBet * 2.5;
             }
         }
@@ -367,7 +373,7 @@ public class Blackjack {
 
             // demande du solde à chaque player
             do {
-                output.print(String.format("Donner la solde en Euros que possède le joueur %d (entre 1.0 et 1000000.0) : ", i+1));
+                output.print(String.format("Donner la somme en Euros que possède le joueur %d (entre 1.0 et 1000000.0) : ", i+1));
 
                 //try except pour éviter que le script s'arette si la saisie n'est pas un double.
                 try {
@@ -577,9 +583,9 @@ public class Blackjack {
 
         // on affiche les pts que l'on a
         if (minScore != bestScore) {
-            output.println(String.format("Tu as %d ou %d points", minScore, bestScore));
+            output.println(String.format("Tu as %d ou %d points.", minScore, bestScore));
         } else {
-            output.println(String.format("Tu as %d points", bestScore));
+            output.println(String.format("Tu as %d points.", bestScore));
         }
     }
 
