@@ -208,7 +208,7 @@ public class Blackjack {
 
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck){
         if(isPlayer) { // c'est un player
-            bestAffichagePlayerHand(0, minScore, bestScore);
+            bestAffichagePlayerHand(0, minScore, bestScore);// Fonction permettant d'afficher la meilleur force des points et carte lors d'un tirage.
 
             String reponse;
             do {
