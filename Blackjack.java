@@ -302,7 +302,7 @@ public class Blackjack {
         if (pScore > dealerScore) {
             if (pScore==22) {
                 // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 3 fois ta mise, soit %.2f Euros", pBet*3));
+                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %.2f Euros", pBet*3));
                 return pMoney + pBet * 3;
             }
             else {
@@ -312,8 +312,8 @@ public class Blackjack {
             }
         }
         else if (pScore == dealerScore) {
-            // le player et le dealer ont fait blackJack, le player récupère sa mise
-            output.println(String.format("Le croupier et toi avait fait BlackJack, tu récupères ta mise, soit %.2f Euros", pBet));
+            // le player et le dealer ont égalité, le player récupère sa mise
+            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %.2f Euros", pBet));
             return pMoney + pBet;
         }
         else {
@@ -623,7 +623,11 @@ public class Blackjack {
     /**
      * Fonction permettant d'afficher 'BlackJack'
      * */
-    public static void displayBlackJack() {
-        output.println("BlackJack !");
+    public static void displayBlackJack(boolean isPlayer) {
+        if (isPlayer) {
+            output.println("Tu as un Black Jack.\n");
+        } else {
+            output.println("Le croupier a un Black Jack.\n");
+        }
     }
 }
