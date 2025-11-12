@@ -35,13 +35,24 @@ listCmd = [
     # mail du 06 / 11 à 19h13
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'int[] T = new int[16]; T[0] = 9; Blackjack.cardsNumber(T) == 9' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
+    # mail du 05/11 à 13h41
+    r'''find . -name Blackjack.java -exec bash -c "grep -H 'import .*;' {} | grep -q -v -e Scanner -e Random -e Locale -e PrintStream && echo {} ÉCHEC" \; | sort''',
+
     # mail du 07 / 11 à 22h02
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'int[] T = Blackjack.generateCards(1); var compteur = 0; for (var i = 0; i < T.length; i++) {if (T[i] == 7) compteur++;} T[0] == 52 && compteur == 4 && T.length == 53;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
     # mail du 09 / 11 à 14h27
     r'''find . -name Blackjack.java -exec bash -c "timeout 4 jshell {} <<< 'int[] deck = new int[]{6,1,2,3,4,5,6}; int[] dHand = new int[]{0,0,0}; Blackjack.dealInitialCards(new boolean[]{true,true}, new int[][]{{0, 0, 0}, {0, 0, 0}}, dHand, deck); Blackjack.cardsNumber(deck) == 0 && Blackjack.cardsNumber(dHand) == 2;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
-    r'''checkstyle -c blackjack-style.xml Blackjack.java''',
+    # mail du 10/11 à 22h14
+    r'''find . -name Blackjack.java -exec bash -c "checkstyle -c blackjack-style.xml {} && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | grep -e OK -e ÉCHEC | sort''',
+
+    # mail du 11/11 à 19h11
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.cardName(11)' | grep -q 'valet' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 12/11 à 10h21
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.playerNewMoney(100,20,18,18)' | grep -q '==> 120' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
 ]
 
 
