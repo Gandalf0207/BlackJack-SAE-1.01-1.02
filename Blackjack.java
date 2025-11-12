@@ -277,7 +277,7 @@ public class Blackjack {
         boolean hasAnAce = hasAnAce(pHand);
 
         if (bestScore == 21) {
-            displayBlackJack();
+            displayBlackJack(true);
             return 22;
         }
         else {
@@ -290,7 +290,7 @@ public class Blackjack {
         output.println("\n--> Tour du croupier");
         output.println(String.format("Le croupier a les cartes %s.", getMain(dealerHand)));
         if (bestScore(dealerHand) == 21) {
-            displayBlackJack();
+            displayBlackJack(false);
             return 22;
         }
         else {// croupier automatique
