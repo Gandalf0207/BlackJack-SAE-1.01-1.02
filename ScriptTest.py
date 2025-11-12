@@ -29,6 +29,7 @@ listCmd = [
 
     # mail du 05 / 11 à 12h21
     r'''find . -name Blackjack.java -exec bash -c "echo -e 'boolean[] playerIsActive = new boolean[]{true, true, true}; double[] playerMoney = {16, 32, 64}; double[] playerBet = new double[3]; Blackjack.collectBets(playerIsActive, playerMoney, playerBet);\n 4 8 16\n Arrays.equals(playerMoney, new double[]{12, 24, 48});' | jshell {} | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
     # mail du 05 / 11 à 21h00
     r'''find . -name Blackjack.java -exec bash -c "echo '2 3 512.5 256.8' | java {} | grep -q 'PREMIÈRE PARTIE' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
@@ -53,6 +54,8 @@ listCmd = [
     # mail du 12/11 à 10h21
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.playerNewMoney(100,20,18,18)' | grep -q '==> 120' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
+    # mail du 12/11 à 20h51
+    r'''find . -name Blackjack.java -exec bash -c "echo '2 3 100.9 205.5 50.4 128' | java {} | grep -q 'Faites vos jeux \!' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 
