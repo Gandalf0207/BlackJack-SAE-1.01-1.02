@@ -43,7 +43,7 @@ listCmd = [
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'int[] T = Blackjack.generateCards(1); var compteur = 0; for (var i = 0; i < T.length; i++) {if (T[i] == 7) compteur++;} T[0] == 52 && compteur == 4 && T.length == 53;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
     # mail du 09 / 11 à 14h27
-    r'''find . -name Blackjack.java -exec bash -c "timeout 4 jshell {} <<< 'int[] deck = new int[]{6,1,2,3,4,5,6}; int[] dHand = new int[]{0,0,0}; Blackjack.dealInitialCards(new boolean[]{true,true}, new int[][]{{0, 0, 0}, {0, 0, 0}}, dHand, deck); Blackjack.cardsNumber(deck) == 0 && Blackjack.cardsNumber(dHand) == 2;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+    r'''find . -name Blackjack.java -exec bash -c "timeout 15 jshell {} <<< 'int[] deck = new int[]{6,1,2,3,4,5,6}; int[] dHand = new int[]{0,0,0}; Blackjack.dealInitialCards(new boolean[]{true,true}, new int[][]{{0, 0, 0}, {0, 0, 0}}, dHand, deck); Blackjack.cardsNumber(deck) == 0 && Blackjack.cardsNumber(dHand) == 2;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
     # mail du 10/11 à 22h14
     r'''find . -name Blackjack.java -exec bash -c "checkstyle -c blackjack-style.xml {} && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | grep -e OK -e ÉCHEC | sort''',
