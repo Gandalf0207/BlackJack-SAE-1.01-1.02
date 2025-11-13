@@ -56,6 +56,9 @@ listCmd = [
 
     # mail du 12/11 à 20h51
     r'''find . -name Blackjack.java -exec bash -c "echo '2 3 100.9 205.5 50.4 128' | java {} | grep -q 'Faites vos jeux \!' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 13/11 à 10h17
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'Blackjack.playRound(new boolean[]{true}, new double[]{100}, new int[]{5,7,7,7,7,7});\n 50 non' | jshell {} | grep -c -e 'Tu as 14 points.' -e 'Le croupier a les cartes 7 et 7.' -e 'Le croupier a 21 points.' -e 'Tu perds contre le croupier, tu ne récupères rien.' -e 'Ton solde est de 50.0 €' -e '==> true' | grep -q 7 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 
