@@ -62,6 +62,15 @@ listCmd = [
 
     # mail du 13/11 à 19h42
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.playDrawingPhase(new int[]{2,1,3,0,0}, 4, true, 14, false, new int[]{3,2,2,2})' | grep -c -e 'Le croupier a tiré un 2. Il a 16 points.' -e 'Le croupier a tiré un 2. Il a 18 points.' -e '==> 18' | grep -q '^3$' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 14 / 11 à 11h22
+    r'''find . -name Blackjack.java -exec bash -c "javac {} -d . && javap Blackjack.class | grep -qF 'public static void shuffleCards(int[]);' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 14 / 11 à 12h59
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.displayGameInit(new boolean[]{true,true}, new double[]{63.5,156}, new double[]{64.5, 100}, new int[][]{{2,11,4},{2,2,13}}, 5)' | grep -e 'Joueur 1 : solde = 63.5 € / mise = 64.5 € / cartes : valet et 4' -e 'Joueur 2 : solde = 156.0 € / mise = 100.0 € / cartes : 2 et roi' -e 'Le croupier a les cartes 5 et ? .' | wc -l | grep -q 3 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 14 / 11 à 15h19
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'Blackjack.playerPlayTurn(0, 150, 150, new int[]{2,1,7,0,0}, new int[]{4,8,1,1,8}); \n oui oui non' | jshell {} | grep -e 'solde = 150.0 € / mise = 150.0 € / cartes : as et 7' -e 'Tu as 8 ou 18 points.' -e 'Tu as tiré un 8. Tu as 16 points.' -e 'Tu as tiré un as. Tu as 17 points.' -e '==> 17' | wc -l | grep -q 5 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 
