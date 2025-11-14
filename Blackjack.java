@@ -4,6 +4,8 @@ import java.util.Locale;
 import java.io.PrintStream;
 
 
+// Correction orthographique des docstring avec claude.ai
+
 public class Blackjack {
 
     // variables utilitaires de la class
@@ -16,11 +18,11 @@ public class Blackjack {
     //----------------------------------------------------------------------------------------------------------------//
 
     /**
-     * Entry Point permettant de récupérer le nombre de joueurs, le nombre de paquets de 52 cartes et
-     * de lancer {@link #playGame(int, int) }.
-     * A la fin du jeu, le couple de liste est récupéré, contenant le solde de départ de chaque joueur et le solde actuel de chaque joueur.
-     * Le couple est envoyé dans la fonction {@link #àdefind } pour réaliser un affichage.
-     * */
+     * Point d'entrée permettant de récupérer le nombre de joueurs et le nombre de paquets de 52 cartes,
+     * puis de lancer {@link #playGame(int, int)}.
+     * À la fin du jeu, récupère un couple de listes contenant le solde initial et le solde final de chaque joueur.
+     * Ce couple est ensuite transmis à la fonction {@link #afficherResultats} pour afficher les résultats.
+     */
     public static void main(String[] args) {
         // input nb players
         int nbPlayer = askInfosInt(1, 6, "Donner le nombre de joueurs (entre 1 et 6) : ");
@@ -42,12 +44,13 @@ public class Blackjack {
 
 
     /**
-     * Fonction permettant de faire jouer x partie tant que les conditions le permettent.
+     * Permet de jouer plusieurs parties tant que les conditions le permettent.
+     *
      * @param nbPlayer nombre de joueurs
-     * @param nbPacks nombre de paquet de 52 cartes
-     * @return Une matrice de double correspondant au solde de départ et au solde de fin de chaque joueurs
+     * @param nbPacks nombre de paquets de 52 cartes
+     * @return Une matrice de double correspondant au solde initial et au solde final de chaque joueur
      * @see #playRound(boolean[], double[], int[])
-     * */
+     */
     public static double[][] playGame(int nbPlayer, int nbPacks) {
         // player online
         boolean[] active = new boolean[nbPlayer];
@@ -85,16 +88,17 @@ public class Blackjack {
 
 
     /**
-     * Fonction permettant de jouer un tour du jeu. Elle se compose en 4 étapes : la collect des mise avec {@link #collectBets(boolean[], double[], double[])}
-     * Le mélange du deck {@link #shuffleCards(int[])}, la distribution des deux premières carte aux joueurs et au croupier avec {@link #dealInitialCards(boolean[], int[][], int[], int[])}
-     * La gestion des tours de chaque joueurs et du croupier avec {@link #playTurn(boolean[], double[], double[], int[][], int[], int[], int[])}
-     * Enfin l'affichage des résultats et la mise à jour du solde de chaque joueur avec {@link #playerNewMoney(double, double, int, int)}
-     * @param active si les joueurs jouent ou non
-     * @param money tableau contenant le solde actuel de chaque player
-     * @param deck tableau contenant le sabot du jeu avec à l'indice 0 le nombre de carte
-     * @return une valeur boolean indiquant si l'on doit lancer une nouvelle partie ou non
+     * Permet de jouer un tour de jeu en 4 étapes :
+     * 1. Collecte des mises avec {@link #collectBets(boolean[], double[], double[])} & mélange du deck avec {@link #shuffleCards(int[])}
+     * 2. Distribution des deux premières cartes aux joueurs et au croupier avec {@link #dealInitialCards(boolean[], int[][], int[], int[])}
+     * 3. Gestion des tours de chaque joueur et du croupier avec {@link #playTurn(boolean[], double[], double[], int[][], int[], int[], int[])}
+     * 4. Affichage des résultats et mise à jour du solde de chaque joueur avec {@link #playerNewMoney(double, double, int, int)}
      *
-     * */
+     * @param active indique si chaque joueur est actif ou non
+     * @param money tableau contenant le solde actuel de chaque joueur
+     * @param deck tableau représentant le sabot du jeu (l'indice 0 contient le nombre de cartes)
+     * @return true si une nouvelle partie doit être lancée, false sinon
+     */
     public static boolean playRound(boolean[] active, double[] money, int[] deck) {
         // 1 ANNONCES ET PAIEMENT DES MISES
 
@@ -179,13 +183,14 @@ public class Blackjack {
     //----------------------------------------------------------------------------------------------------------------//
 
     /**
-     * Fonction permettant de récupérer une carte du sabot et le ma mettre dans la main de carte données.
-     * Met également à jour les informations du nombre de carte
-     * @param deck sabot de carte du jeu
-     * @param hand main de carte
-     * @return valeur numérique de la carte
+     * Permet de tirer une carte du sabot et de l'ajouter à la main donnée.
+     * Met également à jour le nombre de cartes restantes dans le sabot.
+     *
+     * @param deck sabot de cartes du jeu
+     * @param hand main de cartes
+     * @return valeur numérique de la carte tirée
      * @see #getNextCard(int[])
-     * */
+     */
     public static int drawCard(int[] deck, int[] hand) {
         int card = getNextCard(deck); // récupère la carte dans le sabot
         hand[0]++; // ajout d'une carte dans le compteur
@@ -194,13 +199,14 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de distribuer les 2 permières à chaque joueur et au croupier les uns à la suite des autres
-     * @param playerIsActive indication des joueurs qui jouent ou non
-     * @param playerHand toutes les mains des joueurs
+     * Permet de distribuer les 2 premières cartes à chaque joueur et au croupier, les uns après les autres.
+     *
+     * @param playerIsActive indique quels joueurs sont actifs
+     * @param playerHand mains de tous les joueurs
      * @param dealerHand main du croupier
-     * @param deck sabot de carte du jeu
+     * @param deck sabot de cartes du jeu
      * @see #drawCard(int[], int[])
-     * */
+     */
     public static void dealInitialCards(boolean[] playerIsActive, int[][] playerHand, int[] dealerHand, int[] deck) {
         int nbPlayer = playerIsActive.length;
         for(int i = 1; i <= 2; i++) { // nombre de carte
@@ -212,15 +218,16 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant d'afficher les informations des joueurs et du croupier. (solde, mise et cartes)
-     * @param playerIsActive indication des joueurs qui jouent ou non
-     * @param playerMoney tous les soldes des joueurs
-     * @param playerBet toutes les mises des joueurs
-     * @param playerHand toutes les mains des joueurs
-     * @param dealerVisibleCard la première carte du croupier
+     * Permet d'afficher les informations des joueurs et du croupier (solde, mise et cartes).
+     *
+     * @param playerIsActive indique quels joueurs sont actifs
+     * @param playerMoney soldes de tous les joueurs
+     * @param playerBet mises de tous les joueurs
+     * @param playerHand mains de tous les joueurs
+     * @param dealerVisibleCard première carte visible du croupier
      * @see #cardName
      * @see #getMain(int[])
-     * */
+     */
     public static void displayGameInit(boolean[] playerIsActive, double[] playerMoney, double[] playerBet, int[][] playerHand, int dealerVisibleCard) {
         for(int i = 0; i < playerIsActive.length; i++) {
             if(playerIsActive[i]) {
@@ -231,19 +238,20 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de gérer la phase de jeu des joueurs et du croupier pour tirer les cartes.
-     * @param hand main de carte
-     * @param minScore minimum score possible avec la main
-     * @param hasAnAce présence d'au moins un As dans la main (valeur boolean)
-     * @param bestScore meilleur score favorable avec la main
-     * @param isPlayer si c'est un joueur ou non
-     * @param deck sabot de carte du jeu
-     * @return valeur égale à -1, 0, 1 à 21 en fonction des valeurs
+     * Gère la phase de jeu d'un joueur ou du croupier pour le tirage des cartes.
+     *
+     * @param hand main de cartes
+     * @param minScore score minimum possible avec la main
+     * @param hasAnAce indique la présence d'au moins un As dans la main
+     * @param bestScore meilleur score possible avec la main
+     * @param isPlayer true si c'est un joueur, false si c'est le croupier
+     * @param deck sabot de cartes du jeu
+     * @return -1 si le joueur perd (dépassement), 0 si le croupier perd, 1 à 21 selon le score obtenu
      * @see #bestAffichagePlayerHand(int, int, int)
      * @see #drawCard(int[], int[])
      * @see #minScore(int[])
      * @see #bestScore(int[])
-     * */
+     */
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck){
         if(isPlayer) { // c'est un player
             bestAffichagePlayerHand(0, minScore, bestScore);
@@ -294,19 +302,19 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de manager les tours des joueurs et celui du croupier
-     * @param playerIsActive information sur l'activité des joueurs
-     * @param money solde actuel des joueurs
-     * @param bet mise actuelle des joueurs
-     * @param cardPlayer toutes les mains des joueurs
+     * Gère les tours de jeu de tous les joueurs puis celui du croupier.
+     *
+     * @param playerIsActive indique quels joueurs sont actifs
+     * @param money soldes actuels des joueurs
+     * @param bet mises actuelles des joueurs
+     * @param cardPlayer mains de tous les joueurs
      * @param dealerHand main du croupier
-     * @param playerScore tableau avec les scores des joueurs à la fin de leurs tours
-     * @param deck sabot de carte du jeu
-     * @return valeur résultat du dealer pour ses cartes
+     * @param playerScore scores finaux de chaque joueur à la fin de leur tour
+     * @param deck sabot de cartes du jeu
+     * @return score final du croupier
      * @see #playerPlayTurn(int, double, double, int[], int[])
      * @see #dealerPlayTurn(int[], int[])
-     *
-     * */
+     */
     public static int playTurn(boolean[] playerIsActive, double[] money, double[] bet, int [][] cardPlayer, int[] dealerHand, int[] playerScore, int[] deck) {
         output.println("\nFaites vos jeux !\n"); // affichage
         //players
@@ -320,20 +328,21 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de manager le tour de chaque joueur avec son affichage de tirage de carte
-     * @param i numéro du joueur -1
+     * Gère le tour d'un joueur avec l'affichage du tirage de cartes.
+     *
+     * @param i numéro du joueur (indice base 0)
      * @param pMoney solde actuel du joueur
      * @param pBet mise actuelle du joueur
      * @param pHand main du joueur
-     * @param deck sabot de carte du jeu
-     * @return valeur des points du joueur -1, 1 à 21 ou 22
+     * @param deck sabot de cartes du jeu
+     * @return score du joueur : -1 si défaite, 1 à 21 selon le score, 22 si dépassement
      * @see #displayPlayerGameState(double, double, int[])
      * @see #minScore(int[])
      * @see #bestScore(int[])
      * @see #hasAnAce(int[])
      * @see #displayBlackJack(boolean)
      * @see #playDrawingPhase(int[], int, boolean, int, boolean, int[])
-     * */
+     */
     public static int playerPlayTurn(int i, double pMoney, double pBet, int[] pHand, int[] deck) {
         output.println(String.format("\n--> Tour du joueur %d", i+1));
         displayPlayerGameState(pMoney, pBet, pHand); // affichage des stats
@@ -354,16 +363,17 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de manager le tour du croupier avec son affichage de tirage de carte
+     * Gère le tour du croupier avec l'affichage du tirage de cartes.
+     *
      * @param dealerHand main du croupier
-     * @param deck sabot de carte du jeu
-     * @return valeur des points du croupier 0, 1 à 21 ou 22
+     * @param deck sabot de cartes du jeu
+     * @return score du croupier : 0 si arrêt, 1 à 21 selon le score, 22 si dépassement
      * @see #getMain(int[])
      * @see #displayBlackJack(boolean)
      * @see #minScore(int[])
      * @see #hasAnAce(int[])
      * @see #bestScore(int[])
-     * */
+     */
     public static int dealerPlayTurn(int[] dealerHand, int[] deck) {
         //tour croupier
         output.println("\n--> Tour du croupier");
@@ -380,13 +390,14 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de mettre à jour l'argent des du joueurs en fonction de ses points et de sa mise
+     * Met à jour le solde du joueur en fonction de son score et de sa mise.
+     *
      * @param pMoney solde actuel du joueur
      * @param pBet mise actuelle du joueur
-     * @param pScore valeur obtenu par le joueur
-     * @param dealerScore valeur obtenue par le croupier
+     * @param pScore score obtenu par le joueur
+     * @param dealerScore score obtenu par le croupier
      * @return nouveau solde du joueur après redistribution des gains
-     * */
+     */
     public static double playerNewMoney(double pMoney, double pBet, int pScore, int dealerScore) {
         if (pScore > dealerScore) {
             if (pScore==22) {
@@ -417,13 +428,14 @@ public class Blackjack {
     //----------------------------------------------------------------------------------------------------------------//
 
     /**
-     * Fonction permettant de demander un entier à l'utilisateur qui est compris entre deux bornes d'entier donné.
-     * Redemande tant que la valeur donnée est en dehors des bornes
-     * @param value1 la borne minimum
-     * @param value2 la borne maximum
-     * @param textInput text affiché lors de la demande de saisie à l'utilisateur
-     * @return La valeur saisie par l'utilisateur, respectant
-     * */
+     * Demande à l'utilisateur de saisir un entier compris entre deux bornes données.
+     * Redemande la saisie tant que la valeur est en dehors de l'intervalle.
+     *
+     * @param value1 borne minimale (incluse)
+     * @param value2 borne maximale (incluse)
+     * @param textInput texte affiché lors de la demande de saisie
+     * @return valeur saisie par l'utilisateur, comprise entre les bornes
+     */
     public static int askInfosInt(int value1, int value2, String textInput) {
         int valeur;
         do {
@@ -447,10 +459,11 @@ public class Blackjack {
 
 
     /**
-     * Fonction permettant de récuperer tout les soldes de tout les joueurs de la partie.
+     * Récupère les soldes initiaux de tous les joueurs de la partie.
+     *
      * @param nbPlayer nombre de joueurs
-     * @return un tableau de double contenant tout les solde initiaux
-     * */
+     * @return tableau contenant les soldes initiaux de tous les joueurs
+     */
     public static double[] getSoldePlayer(int nbPlayer) {
         double[] tabsolde = new double[nbPlayer]; // tableau vide
         for(int i = 0; i < nbPlayer; i++) {
@@ -477,13 +490,14 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de collecter toutes les mises de chaque joueurs qui joue.
-     * Si la mise n'est pas dans l'interval attendu alors elle st redemandé.
-     * Si la mise est égale à 0, alors le joueurs n'est plus considéré comme en jeu et ne sera plus pris en compte
-     * @param active tableau de tout les joueurs qui joue ou non
-     * @param money tableau avec tout les soldes actuels des joueurs
-     * @param bet tableau de toutes les mises de chaque joueurs qui joue
-     * */
+     * Collecte les mises de chaque joueur actif.
+     * Si la mise n'est pas dans l'intervalle attendu, elle est redemandée.
+     * Si la mise est égale à 0, le joueur n'est plus considéré comme actif et sera exclu du jeu.
+     *
+     * @param active indique quels joueurs sont actifs
+     * @param money soldes actuels de tous les joueurs
+     * @param bet mises de chaque joueur actif
+     */
     public static void collectBets(boolean[] active, double[] money, double[] bet) {
         // get bet player
         double saisieBet;
@@ -512,9 +526,10 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de mélanger le sabot de carte d jeu et de réinitialiser le nombre de carte dedans à l'indice 0
-     * @param deck sabot de carte du jeu
-     * */
+     * Mélange le sabot de cartes et réinitialise le compteur de cartes à l'indice 0.
+     *
+     * @param deck sabot de cartes du jeu
+     */
     public static void shuffleCards(int[] deck) {
         int l = deck.length;
         for(int i = 0; i< l*2; i++) { // boucle pour tourner x fois
@@ -530,10 +545,11 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de créer le sabot de jeu
-     * @param nbPacks nombre de paquet de 52 cartes pour le jeu
-     * @return un tableau contenant toutes les cartes du jeux et à l'indice 0 le nombre de carte restante dans le sabot
-     * */
+     * Crée le sabot de jeu avec le nombre de paquets spécifié.
+     *
+     * @param nbPacks nombre de paquets de 52 cartes
+     * @return tableau contenant toutes les cartes du jeu (l'indice 0 contient le nombre de cartes restantes)
+     */
     public static int[] generateCards(int nbPacks) {
         int[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}; // Jack 11 / Queen 12 / King 13
 
@@ -551,10 +567,11 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de déterminer si au moins un joueur est toujours en train de jouer ou non
-     * @param active tableau contant le statut des joueur : true -> actif | false -> inactif
-     * @return valeur indicant leur statut
-     * */
+     * Détermine si au moins un joueur est encore actif dans la partie.
+     *
+     * @param active statut de chaque joueur (true = actif, false = inactif)
+     * @return true si au moins un joueur est actif, false sinon
+     */
     public static boolean playersRemain(boolean[] active) {
         for(boolean player:active) {
             if(player){ // test de la valeur
@@ -565,10 +582,11 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de déterminer la valeur en chaine de caractère à partir de la valeur numérique de la carte donnée
-     * @param numero valeur numérique de la carte : de 1 à 13
-     * @return chaine de caractère de la carte pour l'affichage
-     * */
+     * Détermine le nom de la carte à partir de sa valeur numérique.
+     *
+     * @param numero valeur numérique de la carte (1 à 13)
+     * @return nom de la carte sous forme de chaîne de caractères
+     */
     public static String cardName(int numero) {
         return switch (numero) {
             case 11 -> "valet";
@@ -580,11 +598,12 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de retourner la main d'un joueur en chaine de caractère pour l'affichage.
-     * @param mainPersonnage main de carte du joueur
-     * @return chaine de caractère de la main
+     * Retourne la main d'un joueur sous forme de chaîne de caractères pour l'affichage.
+     *
+     * @param mainPersonnage main de cartes du joueur
+     * @return représentation textuelle de la main
      * @see #cardsNumber(int[])
-     * */
+     */
     public static String getMain(int[] mainPersonnage) {
         int nbCards = cardsNumber(mainPersonnage);
 
@@ -611,10 +630,11 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permetant de récupérer la prochaine carte du deck
-     * @param deck sabot de carte
-     * @return valeur décimal de la carte
-     * */
+     * Récupère la prochaine carte du sabot.
+     *
+     * @param deck sabot de cartes
+     * @return valeur numérique de la carte
+     */
     public static int getNextCard(int[] deck) {
         int card = deck[deck[0]];
         deck[0]--; // mise à jour du nombre de carte
@@ -622,21 +642,23 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant de retourner le nombre de cartes d'un tableau de carte
-     * (notez que T[0] est le nombre effectif de cartes et n'est donc pas une carte)
-     * @param tab tableau contenant des carte et le nombre de carte à l'indice 0
-     * @return valleur correspondant au nombre de carte
-     * */
+     * Retourne le nombre de cartes dans un tableau de cartes.
+     * Note : l'indice 0 contient le nombre de cartes et n'est pas une carte.
+     *
+     * @param tab tableau contenant les cartes (l'indice 0 contient le compteur)
+     * @return nombre de cartes dans le tableau
+     */
     public static int cardsNumber(int[] tab) {
         return tab[0];
     }
-    
+
     /**
-     * Fonction permettant de calculer le score minnimum obtensible pour une main donnée
-     * @param hand main de carte
-     * @return minimum score obtensible
-     * @see #cardsNumber(int[]) 
-     * */
+     * Calcule le score minimum possible pour une main donnée.
+     *
+     * @param hand main de cartes
+     * @return score minimum de la main
+     * @see #cardsNumber(int[])
+     */
     public static int minScore(int[] hand) {
         int total = 0;
         for(int i = 1; i <= cardsNumber(hand); i++) {// on ajoute toutes les valeurs au minimum
@@ -644,13 +666,14 @@ public class Blackjack {
         }
         return total;
     }
-    
+
     /**
-     * Fonction permettant de calculer le meilleur score favorable pour une main donnée
-     * @param hand main de carte
-     * @return meilleur score obtensible
-     * @see #cardsNumber(int[]) 
-     * */
+     * Calcule le meilleur score possible pour une main donnée.
+     *
+     * @param hand main de cartes
+     * @return meilleur score de la main
+     * @see #cardsNumber(int[])
+     */
     public static int bestScore(int[] hand) {
         int total = 0;
         int asCpt = 0;
@@ -671,12 +694,13 @@ public class Blackjack {
         }
         return total;
     }
-    
+
     /**
-     * Fonction permettant de déterminer si la main contient au moins un As
-     * @param hand main de carte
-     * @return valeur boolean indiquant la présance ou non d'au moins un As
-     * */
+     * Détermine si la main contient au moins un As.
+     *
+     * @param hand main de cartes
+     * @return true si la main contient au moins un As, false sinon
+     */
     public static boolean hasAnAce(int[] hand) {
         for(int card:hand) { // parcours du tableau
             if(card==1) {
@@ -687,12 +711,13 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant d'afficher la meilleur force des points et carte lors d'un tirage.
-     * @param card valeur correspondant à la carte tirée
-     * @param minScore score minimum possible (tout les as valent 1)
-     * @param bestScore meilleur score obtensible
+     * Affiche le meilleur score et la carte tirée lors d'un tirage.
+     *
+     * @param card valeur de la carte tirée
+     * @param minScore score minimum possible (tous les As valent 1)
+     * @param bestScore meilleur score possible
      * @see #getMain(int[])
-     * */
+     */
     public static void bestAffichagePlayerHand(int card, int minScore, int bestScore) {
         if(card != 0) { // on a pioché une carte
             if (card == 12) { // si c'est une dame on affiche 'une' à la place de 'un'
@@ -711,21 +736,22 @@ public class Blackjack {
     }
 
     /**
-     * Fonction permettant d'afficher les statistiques du joueurs (numéro du joueur, son solde actuel,
-     * sa mise et les cartes qu'il a dans sa main.
-     * @param pMoney montant du solde actuel du joueur
-     * @param pBet montant actuel de la mise du joueur
-     * @param phand main de carte actuel du joueur
+     * Affiche les statistiques du joueur : numéro, solde actuel, mise et cartes en main.
+     *
+     * @param pMoney solde actuel du joueur
+     * @param pBet mise actuelle du joueur
+     * @param phand main de cartes du joueur
      * @see #getMain(int[])
-     * */
+     */
     public static void displayPlayerGameState(double pMoney, double pBet,int[] phand) {
         output.println(String.format("solde = %.1f € / mise = %.1f € / cartes : %s ",pMoney, pBet, getMain(phand)));
     }
 
     /**
-     * Fonction permettant d'afficher 'BlackJack'
-     * @param isPlayer valeur boolean pour connaitre l'identité de la personne (joueur ou croupier)
-     * */
+     * Affiche "BlackJack" avec l'identité de la personne concernée.
+     *
+     * @param isPlayer true si c'est un joueur, false si c'est le croupier
+     */
     public static void displayBlackJack(boolean isPlayer) {
         if (isPlayer) {
             output.println("Tu as un Black Jack.\n");
