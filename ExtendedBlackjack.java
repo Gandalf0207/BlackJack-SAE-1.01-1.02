@@ -1,12 +1,12 @@
+import java.io.PrintStream;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Locale;
-import java.io.PrintStream;
 
 
 // Correction orthographique des docstring avec claude.ai
 
-public class Blackjack {
+public class ExtendedBlackjack {
 
     // variables utilitaires de la class
     public static Scanner input = new Scanner(System.in).useLocale(Locale.US);
