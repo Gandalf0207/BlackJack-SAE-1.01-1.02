@@ -754,7 +754,7 @@ public class ExtendedBlackjack {
      */
     public static void displayBlackJack(boolean isPlayer) {
         if (isPlayer) {
-            output.println("Tu as un Black Jack.\n");
+            output.println("Black Jack !!!\n");
         } else {
             output.println("Le croupier a un Black Jack.\n");
         }
