@@ -78,6 +78,11 @@ listCmd = [
     # mail du 16 / 11 à 21h28
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< $'double[][] résultat = Blackjack.playGame(3, 1); \n 32 16.5 100 0 0 0 \n Arrays.deepEquals(résultat, new double[][]{{32, 16.5, 100}, {32, 16.5, 100}});' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
+    # mail du 17 / 11 à 10h09
+    r'''find . -name Blackjack.java -exec bash -c "timeout 4 jshell {} <<< 'int[] deck = new int[]{6,1,2,3,4,5,6}; int[] dHand = new int[]{0,0,0}; Blackjack.dealInitialCards(new boolean[]{true,true}, new int[][]{{0, 0, 0}, {0, 0, 0}}, dHand, deck); Blackjack.cardsNumber(deck) == 0 && Blackjack.cardsNumber(dHand) == 2;' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null''',
+
+    # mail du 17 / 11 à 18h28
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'int i = 0; double pMoney = 2500; double pBet = 2500 ; int[] pHand = new int[]{2,9,3,0,0,0}; int[] deck = new int[]{6,1,5,12,12,5,1}; Blackjack.playerPlayTurn(i, pMoney, pBet, pHand, deck);\n oui oui oui' | jshell {} | grep -q 'Tu as dépassé 21 points \!' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 
