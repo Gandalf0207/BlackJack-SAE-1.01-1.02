@@ -84,8 +84,14 @@ listCmd = [
     # mail du 17 / 11 à 18h28
     r'''find . -name Blackjack.java -exec bash -c "echo -e 'int i = 0; double pMoney = 2500; double pBet = 2500 ; int[] pHand = new int[]{2,9,3,0,0,0}; int[] deck = new int[]{6,1,5,12,12,5,1}; Blackjack.playerPlayTurn(i, pMoney, pBet, pHand, deck);\n oui oui oui' | jshell {} | grep -q 'Tu as dépassé 21 points \!' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
-    # mail du 18 / 11 à 22h19
+    # mail du 18 / 11 à 22h49
     r'''find . -name Blackjack.java -exec bash -c "echo -e 'boolean[] playerIsActive = new boolean[]{true, true, true}; double[] playerMoney = {16, 32, 64}; double[] playerBet = new double[3]; Blackjack.collectBets(playerIsActive, playerMoney, playerBet);\n 4 8 16\n Arrays.equals(playerMoney, new double[]{12, 24, 48});' | jshell {} | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort | grep OK''',
+
+    # mail du 19 / 11 à 20h46
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'int[] dealerMain = {2,4,5,0,0,0}; int[] desk = {5,4,6,7,6,4}; Blackjack.dealerPlayTurn(dealerMain, desk);' | grep -q '==> 19' && echo {} OK || echo {} ÉCHEC " \; 2>/dev/null | sort''',
+
+    # mil du 20 / 11 à 16h06
+    r'''find . -name Blackjack.java -exec bash -c "grep -H 'import .*;' {} | grep -q -v -e Scanner -e Random -e Locale -e PrintStream && echo {} ÉCHEC" \; | sort''',
 ]
 
 
