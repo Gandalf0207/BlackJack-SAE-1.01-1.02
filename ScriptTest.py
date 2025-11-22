@@ -1,14 +1,15 @@
 import subprocess
 
+
 def execution(listCmd):
-     
     for cmd in listCmd:
 
-        try : 
+        try:
             resultat = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             print(resultat.stdout.strip())
         except Exception as e:
             print("Execption : ", e)
+
 
 listCmd = [
 
@@ -92,8 +93,16 @@ listCmd = [
 
     # mil du 20 / 11 à 16h06
     r'''find . -name Blackjack.java -exec bash -c "grep -H 'import .*;' {} | grep -q -v -e Scanner -e Random -e Locale -e PrintStream && echo {} ÉCHEC" \; | sort''',
-]
 
+    # mail du 20 / 11 à 20h36
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'boolean playerIsActive[] = new boolean[]{true}; double[] money = new double[]{100}; double[] bet = new double[]{50}; int[][] playerHand = new int[][]{{2, 1, 2, 0}}; int[] dealerHand = new int[]{2, 1, 2, 0, 0, 0}; int[] playerScore = new int[]{10}; int[] deck = new int[]{5, 3, 2, 1, 2, 3}; Blackjack.playTurn(playerIsActive, money, bet, playerHand, dealerHand, playerScore, deck); \n oui non \n var pHand = playerHand[0]; dealerHand;' | jshell {} | grep -F -e 'pHand ==> int[4] { 3, 1, 2, 3 }' -e 'dealerHand ==> int[6] { 5, 1, 2, 2, 1, 2 }' | wc -l | grep -q 2 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 21 / 11 à 15h55
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.cardName(1).equals(\"as\") && Blackjack.cardName(2).equals(\"2\") && Blackjack.cardName(12).equals(\"dame\")' | grep -q '==> true' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 21 / 11 à 16h20
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.playerNewMoney(50,10.5,22,20)' | grep -q '==> 81.5' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+]
 
 if __name__ == "__main__":
     execution(listCmd)
