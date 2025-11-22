@@ -144,7 +144,7 @@ public class ExtendedBlackjack {
 
             // affichage des informations après le tour
             output.println(String.format("\nRésultat du joueur %d", i + 1));
-            output.println(String.format("solde = %.1f € / bet = %.1f € / cartes : %s ", pMoney, pBet, getMain(cardPlayer[i])));
+            output.println(String.format("solde = %.1f € / mise = %.1f € / cartes : %s ", pMoney, pBet, getMain(cardPlayer[i])));
             if (bestScore(cardPlayer[i]) > 21) {
                 output.println("Tu as dépassé 21 points.");
             } else {
@@ -239,8 +239,9 @@ public class ExtendedBlackjack {
      * @return -1 si le joueur perd (dépassement), 0 si le croupier perd, 1 à 21 selon le score obtenu
      * @see #bestAffichagePlayerHand(int, int, int)
      * @see #drawCard(int[], int[])
-     * @see #minScore(int[])
-     * @see #bestScore(int[])
+     * @see #updateBestScore(int, boolean)
+     * @see #updateMinScore(int, int)
+     * @see #updateHasAnAce(boolean, int)
      */
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck) {
         if (isPlayer) { // c'est un player
@@ -261,8 +262,9 @@ public class ExtendedBlackjack {
                 if (reponse.equalsIgnoreCase("oui")) {
                     int card = drawCard(deck, hand);
 
-                    minScore = minScore(hand);
-                    bestScore = bestScore(hand);
+                    minScore = updateMinScore(minScore, card);
+                    hasAnAce = updateHasAnAce(hasAnAce, card);
+                    bestScore = updateBestScore(minScore, hasAnAce);
 
                     bestAffichagePlayerHand(card, minScore, bestScore);
                 }
@@ -276,7 +278,11 @@ public class ExtendedBlackjack {
 
             while (bestScore < 17) { // condition de boucle
                 int card = drawCard(deck, hand);
-                bestScore = bestScore(hand);
+
+                minScore = updateMinScore(minScore, card);
+                hasAnAce = updateHasAnAce(hasAnAce, card);
+                bestScore = updateBestScore(minScore, hasAnAce);
+
                 if (card == 12) {
                     output.println(String.format("Le croupier a tiré une %s. Il a %d points.", cardName(card), bestScore));
                 } else {
@@ -681,31 +687,41 @@ public class ExtendedBlackjack {
     }
 
     /**
-     * Calcule le meilleur score possible pour une main donnée.
+     * Calcule le meilleur score possible pour une main juste après la distribution des carte.
+     * Utilisation juste à un seul moment (principe discutable mais c'est ce qui est attendu...)
      *
      * @param hand main de cartes
      * @return meilleur score de la main
-     * @see #cardsNumber(int[])
      */
     public static int bestScore(int[] hand) {
         int total = 0;
-        int asCpt = 0;
+        boolean asTake = false;
         for (int i = 1; i <= cardsNumber(hand); i++) {// on ajoute toutes les valeurs au max
-            if (hand[i] == 1) {
-                asCpt++;
+            if (hand[i] == 1 && !asTake) {
                 total += 11;
+                asTake = true;
             } else if (hand[i] > 10) {
                 total += 10;
             } else {
                 total += hand[i];
             }
         }
-        for (int i = 0; i < asCpt; i++) { // on retire pour que l'as compte 1 si c'est sup à 21
-            if (total > 21) {
-                total -= 10;
-            }
-        }
         return total;
+    }
+
+    /**
+     * Fonction permettant de renvoyer le meilleur sorce en fonction de la valeur de minscore
+     *
+     * @param minScore valeur minimim de la main
+     * @param hasAnAce valeur boolean indiquant s'il y a n as dans la main
+     * @return valeur du meilleur score favorable
+     *
+     */
+    public static int updateBestScore(int minScore, boolean hasAnAce) {
+        if (hasAnAce) {
+            return minScore + 10 > 21 ? minScore : minScore + 10;
+        }
+        return minScore;
     }
 
     /**
@@ -721,6 +737,19 @@ public class ExtendedBlackjack {
             }
         }
         return false;
+    }
+
+    /**
+     * Fonction permettant de déterminer si un AS est présent dans la main du joueur, fonction de mise à jour
+     * à l'aide d'une carte.
+     *
+     * @param hasAnAce valeur de si un avec est déjà présent dans la main
+     * @param newCard  la carte qui vient d'etre priochée
+     * @return valeur boolean indiquant si un as est présent dans la main
+     *
+     */
+    public static boolean updateHasAnAce(boolean hasAnAce, int newCard) {
+        return (newCard == 1) ? true : hasAnAce;
     }
 
     /**
@@ -771,47 +800,5 @@ public class ExtendedBlackjack {
         } else {
             output.println("Le croupier a un Black Jack.\n");
         }
-    }
-
-
-    //----------------------------------------------------------------------------------------------------------------//
-    //---------------------------FONCTIONS IMPLEMENTES MAIS NON UTILISE AVEC EXPLICATIONS-----------------------------//
-    //----------------------------------------------------------------------------------------------------------------//
-
-    /**
-     * INFORMATIONS
-     *
-     * Je n'ai pas ajouté ces fonctions dans mon algo car elle ne sont pas totalement compatible avec les autres fonctions
-     * et avec la manière dont la gestion des éléments est faites. Cependant leurs logique rese interessante et le résultat
-     * obtenu par mes autres fonction reste le meme.
-     * */
-
-
-    /**
-     * Fonction permettant de déterminer si un AS est présent dans la main du joueur, fonction de mise à jour
-     * à l'aide d'une carte.
-     *
-     * @param hasAnAce valeur de si un avec est déjà présent dans la main
-     * @param newCard  la carte qui vient d'etre priochée
-     * @return valeur boolean indiquant si un as est présent dans la main
-     *
-     */
-    public static boolean updateHasAnAce(boolean hasAnAce, int newCard) {
-        return (newCard == 1) ? true : hasAnAce;
-    }
-
-    /**
-     * Fonction permettant de renvoyer le meilleur sorce en fonction de la valeur de minscore
-     *
-     * @param minScore valeur minimim de la main
-     * @param hasAnAce valeur boolean indiquant s'il y a n as dans la main
-     * @return valeur du meilleur score favorable
-     *
-     */
-    public static int updateBestScore(int minScore, boolean hasAnAce) {
-        if (hasAnAce) {
-            return minScore + 10 > 21 ? minScore : minScore + 10;
-        }
-        return minScore;
     }
 }
