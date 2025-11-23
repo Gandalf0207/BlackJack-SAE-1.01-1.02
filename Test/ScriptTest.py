@@ -102,6 +102,18 @@ listCmd = [
 
     # mail du 21 / 11 à 16h20
     r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'Blackjack.playerNewMoney(50,10.5,22,20)' | grep -q '==> 81.5' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 22 / 11 à 15h15
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'Blackjack.playRound(new boolean[]{true}, new double[]{100.5}, new int[]{6,6,6,6,6,6,6});\n 50.6 oui non \n' | timeout 2 jshell {} | grep -c -e 'Tu es à égalité avec le croupier, tu récupères ta mise, soit 50.6 €' -e 'Ton solde est de 100.5 €' | grep -q 2 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 22 / 11 à 15h57
+    r'''find . -name Blackjack.java -exec bash -c "echo '2 3 512.5 256.8' | timeout 15 java {} | grep -q 'PREMIÈRE PARTIE' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | grep OK | sort''',
+
+    # mail du 23 / 11 à 10h23
+    r'''find . -name Blackjack.java -exec bash -c "echo '2 3 0.99' | timeout 15 java {} | grep -q 'Réponse incorrecte' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort | grep OK''',
+
+    # mail du 23 / 11 à 15h58
+    r'''find . -name Blackjack.java -exec bash -c "java ExtractMethodText.java {} 'boolean playRound' | grep -q collectBets && echo {} OK || echo {} ÉCHEC" \; | sort'''
 ]
 
 if __name__ == "__main__":
