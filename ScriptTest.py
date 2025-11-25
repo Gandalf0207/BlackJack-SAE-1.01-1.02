@@ -114,6 +114,16 @@ listCmd = [
 
     # mail du 23 / 11 à 15h58
     r'''find . -name Blackjack.java -exec bash -c "java ExtractMethodText.java {} 'boolean playRound' | grep -q collectBets && echo {} OK || echo {} ÉCHEC" \; | sort'''
+
+    # mail du 24 / 11 à 10h39
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'int[] pHand = {2,2,3,0,0,0}; Blackjack.playDrawingPhase(pHand, 5, false, 5, true, new int[]{3,1,1,2}); \n oui oui oui non \n Arrays.sort(pHand,1,6); Arrays.toString(pHand)' | jshell {} | grep -qF '[5, 1, 1, 2, 2, 3]' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
+
+    # mail du 24 / 11 à 21h03
+    r'''find . -name Blackjack.java -exec bash -c "java ExtractMethodText.java {} 'int drawCard' | tail -n +2 | sed 's|//.*$||' | grep -q -e '[[:alpha:]]* *(' && echo {} ÉCHEC || echo {} OK" \; | grep ÉCHEC | sort''',
+
+    # mail du 25 / 11 à 20h51
+    r'''find . -name Blackjack.java -exec bash -c "grep -q -e 'void displayGameInit(boolean.*, double.*, double.*, int.*, int.*) {$' {} && java ExtractMethodText.java {} 'void displayGameInit' | grep -c 'for *(' | grep -q 1 && echo {} OK || echo {} ÉCHEC" \; | sort''',
+
 ]
 
 if __name__ == "__main__":
