@@ -179,10 +179,11 @@ public class Blackjack {
      * @param deck sabot de cartes du jeu
      * @param hand main de cartes
      * @return valeur numérique de la carte tirée
-     * @see #getNextCard(int[])
      */
     public static int drawCard(int[] deck, int[] hand) {
-        int card = getNextCard(deck); // récupère la carte dans le sabot
+        int card = deck[deck[0]]; // récupère la carte dans le sabot
+        deck[0]--; // mise à jour du nombre de carte
+
         hand[0]++; // ajout d'une carte dans le compteur
         hand[hand[0]] = card; // on ajoute la carte
         return card;
@@ -237,7 +238,7 @@ public class Blackjack {
      * @param isPlayer  true si c'est un joueur, false si c'est le croupier
      * @param deck      sabot de cartes du jeu
      * @return -1 si le joueur perd (dépassement), 0 si le croupier perd, 1 à 21 selon le score obtenu
-     * @see #bestAffichagePlayerHand(int, int, int)
+     * @see #displayNewCardAndPoints(int, int, int, boolean)
      * @see #drawCard(int[], int[])
      * @see #updateBestScore(int, boolean)
      * @see #updateMinScore(int, int)
@@ -245,7 +246,7 @@ public class Blackjack {
      */
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck) {
         if (isPlayer) { // c'est un player
-            bestAffichagePlayerHand(0, minScore, bestScore);
+            displayNewCardAndPoints(0, minScore, bestScore, true);
 
             String reponse;
             do {
@@ -266,7 +267,7 @@ public class Blackjack {
                     hasAnAce = updateHasAnAce(hasAnAce, card);
                     bestScore = updateBestScore(minScore, hasAnAce);
 
-                    bestAffichagePlayerHand(card, minScore, bestScore);
+                    displayNewCardAndPoints(card, minScore, bestScore, true);
                 }
             } while (reponse.equalsIgnoreCase("oui") && bestScore < 21); // conditions de boucle
             if (bestScore > 21) {
@@ -283,11 +284,7 @@ public class Blackjack {
                 hasAnAce = updateHasAnAce(hasAnAce, card);
                 bestScore = updateBestScore(minScore, hasAnAce);
 
-                if (card == 12) {
-                    output.println(String.format("Le croupier a tiré une %s. Il a %d points.", cardName(card), bestScore));
-                } else {
-                    output.println(String.format("Le croupier a tiré un %s. Il a %d points.", cardName(card), bestScore));
-                }
+                displayNewCardAndPoints(card, minScore, bestScore, false);
             }
             if (bestScore > 21) {
                 output.println("Le croupier a dépassé 21 points !");
@@ -637,18 +634,6 @@ public class Blackjack {
     }
 
     /**
-     * Récupère la prochaine carte du sabot.
-     *
-     * @param deck sabot de cartes
-     * @return valeur numérique de la carte
-     */
-    public static int getNextCard(int[] deck) {
-        int card = deck[deck[0]];
-        deck[0]--; // mise à jour du nombre de carte
-        return card;
-    }
-
-    /**
      * Retourne le nombre de cartes dans un tableau de cartes.
      * Note : l'indice 0 contient le nombre de cartes et n'est pas une carte.
      *
@@ -752,33 +737,9 @@ public class Blackjack {
         return (newCard == 1) ? true : hasAnAce;
     }
 
-    /**
-     * Affiche le meilleur score et la carte tirée lors d'un tirage.
-     *
-     * @param card      valeur de la carte tirée
-     * @param minScore  score minimum possible (tous les As valent 1)
-     * @param bestScore meilleur score possible
-     * @see #getMain(int[])
-     */
-    public static void bestAffichagePlayerHand(int card, int minScore, int bestScore) {
-        if (card != 0) { // on a pioché une carte
-            if (card == 12) { // si c'est une dame on affiche 'une' à la place de 'un'
-                output.print(String.format("Tu as tiré une %s. ", cardName(card)));
-            } else {
-                output.print(String.format("Tu as tiré un %s. ", cardName(card)));
-            }
-        }
-
-        // on affiche les points que l'on a
-        if (minScore != bestScore) { // 2 score de points possible (as valent 1 ou 11)
-            output.println(String.format("Tu as %d ou %d points.", minScore, bestScore));
-        } else {
-            output.println(String.format("Tu as %d points.", bestScore));
-        }
-    }
 
     /**
-     * Affiche les statistiques du joueur : numéro, solde actuel, mise et cartes en main.
+     * Affiche les statistiques du joueur : solde actuel, mise et cartes en main.
      *
      * @param pMoney solde actuel du joueur
      * @param pBet   mise actuelle du joueur
@@ -799,6 +760,40 @@ public class Blackjack {
             output.println("Black Jack !!!\n");
         } else {
             output.println("Le croupier a un Black Jack.\n");
+        }
+    }
+
+    /**
+     * Affiche le meilleur score et la carte tirée lors d'un tirage.
+     *
+     * @param newCard   valeur de la carte tirée
+     * @param minScore  score minimum possible (tous les As valent 1)
+     * @param bestScore meilleur score possible
+     * @param isPlayer  boolean permettant de savoir s'il s'agit du joueur ou du croupier
+     * @see #getMain(int[])
+     */
+    public static void displayNewCardAndPoints(int newCard, int minScore, int bestScore, boolean isPlayer) {
+        if (isPlayer) {
+            if (newCard != 0) { // on a pioché une carte
+                if (newCard == 12) { // si c'est une dame on affiche 'une' à la place de 'un'
+                    output.print(String.format("Tu as tiré une %s. ", cardName(newCard)));
+                } else {
+                    output.print(String.format("Tu as tiré un %s. ", cardName(newCard)));
+                }
+            }
+
+            // on affiche les points que l'on a
+            if (minScore != bestScore) { // 2 score de points possible (as valent 1 ou 11)
+                output.println(String.format("Tu as %d ou %d points.", minScore, bestScore));
+            } else {
+                output.println(String.format("Tu as %d points.", bestScore));
+            }
+        } else {
+            if (newCard == 12) {
+                output.println(String.format("Le croupier a tiré une %s. Il a %d points.", cardName(newCard), bestScore));
+            } else {
+                output.println(String.format("Le croupier a tiré un %s. Il a %d points.", cardName(newCard), bestScore));
+            }
         }
     }
 }
