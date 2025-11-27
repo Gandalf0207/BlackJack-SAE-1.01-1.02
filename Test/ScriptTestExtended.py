@@ -21,6 +21,8 @@ listCmd = [
     # mail du 25 / 11 à 11h34
     r'''find . -name ExtendedBlackjack.java -exec bash -c "javac {} -d . && javap ExtendedBlackjack.class | grep -qF 'boolean chooseSurrender(double);' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
+    # mail du 26 / 11 à 9h05
+    r'''find . -name ExtendedBlackjack.java -exec bash -c " echo 'ExtendedBlackjack.displayNewCardAndPoints(1,5,15,true,true)' | jshell {} | grep -q 'Tu as tiré un as. Tu as 15 points.' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 if __name__ == "__main__":
