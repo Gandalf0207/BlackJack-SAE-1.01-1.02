@@ -826,6 +826,4 @@ public class Blackjack {
             }
         }
     }
-
-
 }
