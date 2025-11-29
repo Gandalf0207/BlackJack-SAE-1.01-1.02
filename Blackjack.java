@@ -141,19 +141,11 @@ public class Blackjack {
             int dealerScore = pointDealer;
             double pBet = bet[i];
             double pMoney = money[i];
-
-            // affichage des informations après le tour
-            output.println(String.format("\nRésultat du joueur %d", i + 1));
-            output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(cardPlayer[i])));
-            if (bestScore(cardPlayer[i]) > 21) {
-                output.println("Tu as dépassé 21 points.");
-            } else {
-                output.println(String.format("Tu as %d points.", bestScore(cardPlayer[i])));
-            }
-
             // mie à jour du solde des joueurs
             money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
-            output.println(String.format("Ton solde est de %s €", money[i]));
+
+            // affichage des informations après le tour
+            displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i]);
         }
 
 
@@ -392,22 +384,60 @@ public class Blackjack {
         if (pScore > dealerScore) {
             if (pScore == 22) {
                 // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %s €", pBet * 3));
                 return pMoney + pBet * 3;
             } else {
                 // le player gagne contre le croupier, il récupère 2.5 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %s €", pBet * 2.5));
                 return pMoney + pBet * 2.5;
             }
         } else if (pScore == dealerScore) {
             // le player et le dealer ont égalité, le player récupère sa mise
-            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %s €", pBet));
             return pMoney + pBet;
         } else {
             // le player a perdu contre le dealer, il ne récupère rien
-            output.println("Tu perds contre le croupier, tu ne récupères rien.");
             return pMoney;
         }
+    }
+
+    /**
+     * Fonction permettant d'afficher simplement des statistique du player en fin de partie
+     *
+     * @param i           numéro du joueur -1
+     * @param pMoney      l'argent du joueur avant la redistribution
+     * @param pBet        mise du joueur pour cette partie
+     * @param pHand       main de carte du joueur
+     * @param pScore      valeur du score du joueur (entre -1 et 22)
+     * @param dealerScore valeur du score du crouper (entre 0 et 22)
+     * @param pNewMoney   valeur du nouveau solde du joueur après la redistribution des gains / pertes
+     * @see #getMain(int[])
+     * @see #bestScore(int[])
+     *
+     */
+    public static void displayPlayerResult(int i, double pMoney, double pBet, int[] pHand, int pScore, int dealerScore, double pNewMoney) {
+        output.println(String.format("\nRésultat du joueur %d", i + 1));
+        output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(pHand)));
+        if (bestScore(pHand) > 21) {
+            output.println("Tu as dépassé 21 points.");
+        } else {
+            output.println(String.format("Tu as %d points.", bestScore(pHand)));
+        }
+
+        // meme code que pour le new money mais on  doit l'afficher ici ???? duplication de code, bref
+        if (pScore > dealerScore) {
+            if (pScore == 22) {
+                // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
+                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %s €", pBet * 3));
+            } else {
+                // le player gagne contre le croupier, il récupère 2.5 fois sa mise
+                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %s €", pBet * 2.5));
+            }
+        } else if (pScore == dealerScore) {
+            // le player et le dealer ont égalité, le player récupère sa mise
+            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %s €", pBet));
+        } else {
+            // le player a perdu contre le dealer, il ne récupère rien
+            output.println("Tu perds contre le croupier, tu ne récupères rien.");
+        }
+        output.println(String.format("Ton solde est de %s €", pNewMoney));
     }
 
     /**
@@ -796,4 +826,6 @@ public class Blackjack {
             }
         }
     }
+
+
 }
