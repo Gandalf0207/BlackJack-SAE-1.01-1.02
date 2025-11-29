@@ -144,7 +144,7 @@ public class ExtendedBlackjack {
 
             // affichage des informations après le tour
             output.println(String.format("\nRésultat du joueur %d", i + 1));
-            output.println(String.format("solde = %.1f € / mise = %.1f € / cartes : %s ", pMoney, pBet, getMain(cardPlayer[i])));
+            output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(cardPlayer[i])));
             if (bestScore(cardPlayer[i]) > 21) {
                 output.println("Tu as dépassé 21 points.");
             } else {
@@ -153,7 +153,7 @@ public class ExtendedBlackjack {
 
             // mie à jour du solde des joueurs
             money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
-            output.println(String.format("Ton solde est de %.1f €", money[i]));
+            output.println(String.format("Ton solde est de %s €", money[i]));
         }
 
 
@@ -222,7 +222,7 @@ public class ExtendedBlackjack {
     public static void displayGameInit(boolean[] playerIsActive, double[] playerMoney, double[] playerBet, int[][] playerHand, int dealerVisibleCard) {
         for (int i = 0; i < playerIsActive.length; i++) {
             if (playerIsActive[i]) {
-                output.println(String.format("\nJoueur %d : solde = %.1f € / mise = %.1f € / cartes : %s ", i + 1, playerMoney[i], playerBet[i], getMain(playerHand[i])));
+                output.println(String.format("\nJoueur %d : solde = %s € / mise = %s € / cartes : %s ", i + 1, playerMoney[i], playerBet[i], getMain(playerHand[i])));
             }
         }
         output.println(String.format("\nLe croupier a les cartes %s et ? .", cardName(dealerVisibleCard)));
@@ -392,16 +392,16 @@ public class ExtendedBlackjack {
         if (pScore > dealerScore) {
             if (pScore == 22) {
                 // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %.1f €", pBet * 3));
+                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %s €", pBet * 3));
                 return pMoney + pBet * 3;
             } else {
                 // le player gagne contre le croupier, il récupère 2.5 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %.1f €", pBet * 2.5));
+                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %s €", pBet * 2.5));
                 return pMoney + pBet * 2.5;
             }
         } else if (pScore == dealerScore) {
             // le player et le dealer ont égalité, le player récupère sa mise
-            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %.1f €", pBet));
+            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %s €", pBet));
             return pMoney + pBet;
         } else {
             // le player a perdu contre le dealer, il ne récupère rien
@@ -420,9 +420,9 @@ public class ExtendedBlackjack {
     public static void affichageEndGame(double[][] matriceInfos) {
         for (int i = 0; i < matriceInfos[0].length; i++) {
             if (matriceInfos[0][i] > matriceInfos[1][i]) {
-                output.println(String.format("Joueur %d: tu as perdu %.1f €.", i + 1, matriceInfos[0][i] - matriceInfos[1][i]));
+                output.println(String.format("Joueur %d: tu as perdu %s €.", i + 1, matriceInfos[0][i] - matriceInfos[1][i]));
             } else {
-                output.println(String.format("Joueur %d: tu as gagné %.1f €.", i + 1, matriceInfos[1][i] - matriceInfos[0][i]));
+                output.println(String.format("Joueur %d: tu as gagné %s €.", i + 1, matriceInfos[1][i] - matriceInfos[0][i]));
             }
         }
     }
@@ -508,7 +508,7 @@ public class ExtendedBlackjack {
         for (int i = 0; i < active.length; i++) {
             if (active[i] && money[i] > 0) {
                 do {
-                    output.print(String.format("Joueur %d, donne ta mise en Euros (entre 0.0 et %.1f) : ", i + 1, money[i]));
+                    output.print(String.format("Joueur %d, donne ta mise en Euros (entre 0.0 et %s) : ", i + 1, money[i]));
 
                     try {
                         saisieBet = input.nextDouble();
@@ -747,7 +747,7 @@ public class ExtendedBlackjack {
      * @see #getMain(int[])
      */
     public static void displayPlayerGameState(double pMoney, double pBet, int[] phand) {
-        output.println(String.format("solde = %.1f € / mise = %.1f € / cartes : %s ", pMoney, pBet, getMain(phand)));
+        output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(phand)));
     }
 
     /**

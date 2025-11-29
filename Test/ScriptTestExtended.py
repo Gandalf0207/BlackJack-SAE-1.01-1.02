@@ -12,6 +12,7 @@ def execution(listCmd):
 
 
 listCmd = [
+
     # mail du 25 /11 à 11h11
     r'''find . -name ExtendedBlackjack.java -exec bash -c "javac {} -d . && javap ExtendedBlackjack.class | grep -qF 'boolean chooseDoubleBet(int, double[], double[], int[]);' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
