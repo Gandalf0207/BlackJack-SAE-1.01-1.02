@@ -86,8 +86,8 @@ public class ExtendedBlackjack {
      * Permet de jouer un tour de jeu en 4 étapes :
      * 1. Collecte des mises avec {@link #collectBets(boolean[], double[], double[])} & mélange du deck avec {@link #shuffleCards(int[])}
      * 2. Distribution des deux premières cartes aux joueurs et au croupier avec {@link #dealInitialCards(boolean[], int[][], int[], int[])}
-     * 3. Gestion des tours de chaque joueur et du croupier avec {@link #playTurn(boolean[], double[], double[], int[][], int[], int[], int[])}
-     * 4. Affichage des résultats et mise à jour du solde de chaque joueur avec {@link #playerNewMoney(double, double, int, int)}
+     * 3. Gestion des tours de chaque joueur et du croupier avec {@link #playTurn(boolean[], double[], double[], int[][], int[], int[], int[], boolean[])}
+     * 4. Affichage des résultats et mise à jour du solde de chaque joueur avec {@link #playerNewMoney(double, double, int, int, boolean)}
      *
      * @param active indique si chaque joueur est actif ou non
      * @param money  tableau contenant le solde actuel de chaque joueur
@@ -144,10 +144,10 @@ public class ExtendedBlackjack {
             double pBet = bet[i];
             double pMoney = money[i];
             // mie à jour du solde des joueurs
-            money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
+            money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore, insurance[i]);
 
             // affichage des informations après le tour
-            displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i]);
+            displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i], insurance[i]);
         }
 
 
@@ -232,7 +232,7 @@ public class ExtendedBlackjack {
      * @param isPlayer  true si c'est un joueur, false si c'est le croupier
      * @param deck      sabot de cartes du jeu
      * @return -1 si le joueur perd (dépassement), 0 si le croupier perd, 1 à 21 selon le score obtenu
-     * @see #displayNewCardAndPoints(int, int, int, boolean)
+     * @see #displayNewCardAndPoints(int, int, int, boolean, boolean) 
      * @see #drawCard(int[], int[])
      * @see #updateBestScore(int, boolean)
      * @see #updateMinScore(int, int)
@@ -240,30 +240,32 @@ public class ExtendedBlackjack {
      */
     public static int playDrawingPhase(int[] hand, int minScore, boolean hasAnAce, int bestScore, boolean isPlayer, int[] deck, boolean doubleBet) {
         if (isPlayer) { // c'est un player
-            displayNewCardAndPoints(0, minScore, bestScore, true);
+            if(doubleBet) {
+                int card = drawCard(deck, hand);
+                minScore = updateMinScore(minScore, card);
+                hasAnAce = updateHasAnAce(hasAnAce, card);
+                bestScore = updateBestScore(minScore, hasAnAce);
+                displayNewCardAndPoints(card, minScore, bestScore, true, doubleBet);
+            }
+            else {
+                displayNewCardAndPoints(0, minScore, bestScore, true, doubleBet);
+                boolean askQt;
+                do {
+                    askQt = askQuestionOuiNon("Veux-tu tirer une carte [oui/non] ? ");
 
-            String reponse;
-            do {
+                    if (askQt) {
+                        int card = drawCard(deck, hand);
 
-                output.print("Veux-tu tirer une carte [oui/non] ? ");
-                reponse = input.next();
+                        minScore = updateMinScore(minScore, card);
+                        hasAnAce = updateHasAnAce(hasAnAce, card);
+                        bestScore = updateBestScore(minScore, hasAnAce);
 
-                while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) { // element robuste de upper et lower
-                    output.println("Saisie incorrect !");
-                    output.print("Veux-tu tirer une carte [oui/non] ? ");
-                    reponse = input.next();
-                }
+                        displayNewCardAndPoints(card, minScore, bestScore, true, doubleBet);
+                    }
+                } while (askQt && bestScore < 21); // conditions de boucle
+            }
 
-                if (reponse.equalsIgnoreCase("oui")) {
-                    int card = drawCard(deck, hand);
 
-                    minScore = updateMinScore(minScore, card);
-                    hasAnAce = updateHasAnAce(hasAnAce, card);
-                    bestScore = updateBestScore(minScore, hasAnAce);
-
-                    displayNewCardAndPoints(card, minScore, bestScore, true);
-                }
-            } while (reponse.equalsIgnoreCase("oui") && bestScore < 21); // conditions de boucle
             if (bestScore > 21) {
                 output.println("Tu as dépassé 21 points !");
             }
@@ -278,7 +280,7 @@ public class ExtendedBlackjack {
                 hasAnAce = updateHasAnAce(hasAnAce, card);
                 bestScore = updateBestScore(minScore, hasAnAce);
 
-                displayNewCardAndPoints(card, minScore, bestScore, false);
+                displayNewCardAndPoints(card, minScore, bestScore, false, doubleBet);
             }
             if (bestScore > 21) {
                 output.println("Le croupier a dépassé 21 points !");
@@ -298,7 +300,7 @@ public class ExtendedBlackjack {
      * @param playerScore    scores finaux de chaque joueur à la fin de leur tour
      * @param deck           sabot de cartes du jeu
      * @return score final du croupier
-     * @see #playerPlayTurn(int, double, double, int[], int[])
+     * @see #playerPlayTurn(int, double[], double[], int[], int[], boolean[], boolean) 
      * @see #dealerPlayTurn(int[], int[])
      */
     public static int playTurn(boolean[] playerIsActive, double[] money, double[] bet, int[][] cardPlayer, int[] dealerHand, int[] playerScore, int[] deck, boolean[] insurance) {
@@ -309,7 +311,7 @@ public class ExtendedBlackjack {
         //players
         for (int i = 0; i < playerIsActive.length; i++) {
             if (playerIsActive[i]) { // le joueur joue
-                playerScore[i] = playerPlayTurn(i, money[i], bet[i], cardPlayer[i], deck, insurance, dealerHasAnAce); // récupération valeur
+                playerScore[i] = playerPlayTurn(i, money, bet, cardPlayer[i], deck, insurance, dealerHasAnAce); // récupération valeur
             }
         }
         // dealer
@@ -320,32 +322,22 @@ public class ExtendedBlackjack {
      * Gère le tour d'un joueur avec l'affichage du tirage de cartes.
      *
      * @param i      numéro du joueur (indice base 0)
-     * @param pMoney solde actuel du joueur
-     * @param pBet   mise actuelle du joueur
+     * @param money solde actuel de tout les joueurs
+     * @param bet   mise actuelle de tout les joueurs
      * @param pHand  main du joueur
      * @param deck   sabot de cartes du jeu
      * @return score du joueur : -1 si défaite, 1 à 21 selon le score, 22 si dépassement
-     * @see #displayPlayerGameState(double, double, int[])
+     * @see #displayPlayerGameState(double, double, int[], boolean) 
      * @see #minScore(int[])
      * @see #bestScore(int[])
      * @see #hasAnAce(int[])
      * @see #displayBlackJack(boolean)
-     * @see #playDrawingPhase(int[], int, boolean, int, boolean, int[])
+     * @see #playDrawingPhase(int[], int, boolean, int, boolean, int[], boolean) 
      */
-    public static int playerPlayTurn(int i, double pMoney, double pBet, int[] pHand, int[] deck, boolean[] insurance, boolean dealerHasAnAce) {
+    public static int playerPlayTurn(int i, double[] money, double[] bet, int[] pHand, int[] deck, boolean[] insurance, boolean dealerHasAnAce) {
         output.println(String.format("\n--> Tour du joueur %d", i + 1));
-        displayPlayerGameState(pMoney, pBet, pHand, insurance[i]); // affichage des stats
+        displayPlayerGameState(money[i], bet[i], pHand, insurance[i]); // affichage des stats
 
-        //  --------------------------- EXTENSIONS----------------------- //
-        if (pMoney >= pBet) {
-            boolean askQt = askQuestionOuiNon("Veux-tu doubler ta mise (et tirer une unique carte) [oui/non] ? ");
-            if(askQt) {
-                chooseDoubleBet(i, )
-            }
-        }
-        // double mise
-        // assurance
-        // abandon
 
         // calcul des valeurs
         int minScore = minScore(pHand);
@@ -357,7 +349,25 @@ public class ExtendedBlackjack {
             displayBlackJack(true);
             return 22;
         } else { // cas général
-            return playDrawingPhase(pHand, minScore, hasAnAce, bestScore, true, deck);
+
+            //  --------------------------- EXTENSIONS----------------------- //
+            //double mise
+            boolean isDoubleBet = chooseDoubleBet(i, money, bet, pHand);
+
+            // assurance
+            if(dealerHasAnAce) { // seulement si le dealer a un ace en première carte
+                insurance[i] = chooseInsurance(i, money, bet[i], pHand);
+            }
+
+            //abandon
+            if(!isDoubleBet) { // pas compatible avec double mise
+                boolean abandonne = chooseSurrender(bet[i]);
+                if(abandonne) {
+                    return -2;
+                }
+            }
+
+            return playDrawingPhase(pHand, minScore, hasAnAce, bestScore, true, deck, isDoubleBet);
         }
     }
 
@@ -383,7 +393,7 @@ public class ExtendedBlackjack {
             displayBlackJack(false);
             return 22;
         } else {// cas générale
-            return playDrawingPhase(dealerHand, minScore(dealerHand), hasAnAce(dealerHand), bestScore(dealerHand), false, deck);
+            return playDrawingPhase(dealerHand, minScore(dealerHand), hasAnAce(dealerHand), bestScore(dealerHand), false, deck, false);
         }
     }
 
@@ -397,6 +407,10 @@ public class ExtendedBlackjack {
      * @return nouveau solde du joueur après redistribution des gains
      */
     public static double playerNewMoney(double pMoney, double pBet, int pScore, int dealerScore, boolean pInsur) {
+        if (pScore == -2) {
+            return pMoney + 0.5*pBet;
+        }
+
         if (pScore > dealerScore) {
             if (pScore == 22) {
                 // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
@@ -410,7 +424,11 @@ public class ExtendedBlackjack {
             return pMoney + pBet;
         } else {
             // le player a perdu contre le dealer, il ne récupère rien
+            if(pInsur && dealerScore == 22) { // le player est assuré contre un bj du croupier
+                return pMoney + 0.5*pBet;
+            }
             return pMoney;
+
         }
     }
 
@@ -431,29 +449,45 @@ public class ExtendedBlackjack {
     public static void displayPlayerResult(int i, double pMoney, double pBet, int[] pHand, int pScore, int dealerScore, double pNewMoney, boolean pInsur) {
         output.println(String.format("\nRésultat du joueur %d", i + 1));
         output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(pHand)));
+
         if (bestScore(pHand) > 21) {
             output.println("Tu as dépassé 21 points.");
         } else {
             output.println(String.format("Tu as %d points.", bestScore(pHand)));
         }
 
-        // meme code que pour le new money mais on  doit l'afficher ici ???? duplication de code, bref
-        if (pScore > dealerScore) {
-            if (pScore == 22) {
-                // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
-                output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %s €", pBet * 3));
-            } else {
-                // le player gagne contre le croupier, il récupère 2.5 fois sa mise
-                output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %s €", pBet * 2.5));
-            }
-        } else if (pScore == dealerScore) {
-            // le player et le dealer ont égalité, le player récupère sa mise
-            output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %s €", pBet));
-        } else {
-            // le player a perdu contre le dealer, il ne récupère rien
-            output.println("Tu perds contre le croupier, tu ne récupères rien.");
+        if(pScore == -2) { // abandon (cas spécial)
+            output.println(String.format("Tu as abandonné pour cette partie, tu récupères la moitié de ta mise, soit %s €", 0.5*pBet));
         }
-        output.println(String.format("Ton solde est de %s €", pNewMoney));
+        else {
+            // meme code que pour le new money mais on  doit l'afficher ici ???? duplication de code, bref
+            if (pScore > dealerScore) {
+                if (pScore == 22) {
+                    // le player a fait blackjack et le croupier non, il récupère 3 fois sa mise
+                    output.println(String.format("Tu gagnes contre le croupier avec un Black Jack, tu récupères 3.0 fois ta mise, soit %s €", pBet * 3));
+                } else {
+                    // le player gagne contre le croupier, il récupère 2.5 fois sa mise
+                    output.println(String.format("Tu gagnes, tu récupères 2.5 fois ta mise, soit %s €", pBet * 2.5));
+                }
+            } else if (pScore == dealerScore) {
+                // le player et le dealer ont égalité, le player récupère sa mise
+                output.println(String.format("Tu es à égalité avec le croupier, tu récupères ta mise, soit %s €", pBet));
+            } else {
+                // le player a perdu contre le dealer, il ne récupère rien
+                output.println("Tu perds contre le croupier, tu ne récupères rien.");
+                }
+
+            if(pInsur) {
+                output.println("Tu t'es assuré contre un Black Jack du croupier.");
+                if(dealerScore == 22) {
+                    output.println(String.format("Le croupier a fait un Black Jack, tu récupères 2 fois ta prime d'assurance, soit %s €", 0.5*pBet));
+                } else {
+                    output.println("Le croupier n'a pas fait de Black Jack, tu ne récupères rien.");
+                }
+            }
+            output.println(String.format("Ton solde est de %s €", pNewMoney));
+        }
+
     }
 
     /**
@@ -810,7 +844,12 @@ public class ExtendedBlackjack {
      * @see #getMain(int[])
      */
     public static void displayPlayerGameState(double pMoney, double pBet, int[] phand, boolean pInsur) {
-        output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(phand)));
+        if(pInsur) {
+            output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(phand)));
+        }
+        else {
+            output.println(String.format("solde = %s € / mise = %s € / assurance = %s € / cartes : %s ", pMoney, pBet,0.25*pBet, getMain(phand)));
+        }
     }
 
     /**
@@ -866,65 +905,35 @@ public class ExtendedBlackjack {
 
 
     public static boolean chooseSurrender(double pBet) {
-        String reponse;
-        output.print("Veux-tu abandonner ce tour et récupérer la moitié de ta mise, soit " + (pBet * 1 / 2) + " [oui/non] ? "); // poser question assurance
-        reponse = input.next();
-
-        while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) {
-            output.println("Saisie incorrect !");
-            output.print("Veux-tu abandonner ce tour et récupérer la moitié de ta mise, soit " + (pBet * 1 / 2) + " [oui/non] ? ");
-            reponse = input.next();
-        }
-        return reponse.equalsIgnoreCase("oui");
+        boolean askQt = askQuestionOuiNon(String.format("Veux-tu abandonner ce tour et récupérer la moitié de ta mise, soit %s € [oui/non] ? ", (pBet * 1 / 2) ));
+        return askQt;
     }
 
     public static boolean chooseInsurance(int i, double[] money, double pBet, int[] pHand) {
         if (money[i] >= pBet * 1 / 4) { // verification si le joueur a assez d'argent pour prendre l'assurance
-            String reponse;
-            output.print("Veux-tu t'assurer pour le quart de ta mise, soit " + (pBet * 1 / 4) + " contre un Black Jack du croupier [oui/non] ? "); // poser question assurance
-            reponse = input.next();
-
-            while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) {
-                output.println("Saisie incorrect !");
-                output.print("Veux-tu t'assurer pour le quart de ta mise, soit " + (pBet * 1 / 4) + "contre un Black Jack du croupier [oui/non] ? ");
-                reponse = input.next();
-            }
-
-            if (reponse.equalsIgnoreCase("oui")) {
+            boolean askQt = askQuestionOuiNon(String.format("Veux-tu t'assurer pour le quart de ta mise, soit %s € contre un Black Jack du croupier [oui/non] ? ", (pBet * 1 / 4)));
+            if (askQt) {
                 money[i] -= pBet * 1 / 4;
-                displayPlayerGameState(money[i], pBet, pHand);
-                return true;
-            } else {
-                return false;
+                displayPlayerGameState(money[i], pBet, pHand, true);
             }
+            return askQt;
         } else {
-            output.print("Tu n'as pas assez d'argent pour prendre l'assurance.");
+            output.println("Tu n'as pas assez d'argent pour prendre l'assurance.");
             return false;
         }
     }
 
     public static boolean chooseDoubleBet(int i, double[] money, double[] bet, int[] pHand) {
         if (money[i] >= bet[i]) { // verification si le joueur a assez d'argent pour doubler la mise
-            String reponse;
-
-            output.print("Veux-tu doubler ta mise [oui/non] ? "); // poser question double-mise
-            reponse = input.next();
-
-            while (!reponse.equalsIgnoreCase("oui") && !reponse.equalsIgnoreCase("non")) {
-                output.println("Saisie incorrect !");
-                output.print("Veux-tu doubler ta mise [oui/non] ? ");
-                reponse = input.next();
-            }
-
-            if (reponse.equalsIgnoreCase("oui")) { // si la reponse est "oui" alors on en la mise au solde et  on double la mise en la multipliant par 2
+            boolean askQt = askQuestionOuiNon("Veux-tu doubler ta mise (et tirer une unique carte) [oui/non] ? ");
+            if (askQt) { // si la reponse est "oui" alors on en la mise au solde et  on double la mise en la multipliant par 2
                 money[i] -= bet[i]; // money[i] = money[i] - bet[i]
                 bet[i] *= 2; // bet[i] = bet[i] *2
-                return true;
-            } else {
-                return false;
+                displayPlayerGameState(money[i], bet[i], pHand, false);
             }
+            return askQt;
         } else {
-            output.print("Tu n'as pas assez d'argent pour doubler ta mise.");
+            output.println("Tu n'as pas assez d'argent pour doubler ta mise.");
             return false;
         }
     }
