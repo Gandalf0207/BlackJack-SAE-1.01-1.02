@@ -124,6 +124,11 @@ listCmd = [
     # mail du 25 / 11 à 20h51
     r'''find . -name Blackjack.java -exec bash -c "grep -q -e 'void displayGameInit(boolean.*, double.*, double.*, int.*, int.*) {$' {} && java ExtractMethodText.java {} 'void displayGameInit' | grep -c 'for *(' | grep -q 1 && echo {} OK || echo {} ÉCHEC" \; | sort''',
 
+    # mail du 27 / 11 à 19h28
+    r'''find . -name Blackjack.java -exec bash -c "echo -e 'Blackjack.playerPlayTurn(0, 150, 150, new int[]{2,1,7,0,0}, new int[]{4,8,1,1,8}); \n oui oui non' | jshell {} | grep -e 'solde = 150.0 € / mise = 150.0 € / cartes : as et 7' -e 'Tu as 8 ou 18 points.' -e 'Tu as tiré un 8. Tu as 16 points.' -e 'Tu as tiré un as. Tu as 17 points.' -e '==> 17' | wc -l | grep -q 5 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort | grep OK''',
+
+    # mail du 28 / 11 à 20h42
+    r'''find . -name Blackjack.java -exec bash -c "jshell {} <<< 'int i = 0; double pMoney = 500.6; double pBet = 33.5 ; int[] pHand = new int[]{2,1,10}; int[] deck = new int[]{0}; Blackjack.playerPlayTurn(i, pMoney, pBet, pHand, deck)' | grep -e '--> Tour du joueur 1' -e 'solde = 500.6 € / mise = 33.5 € / cartes : as et 10' -e 'Black Jack \!' | wc -l | grep -q 3 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | grep OK | sort''',
 ]
 
 if __name__ == "__main__":
