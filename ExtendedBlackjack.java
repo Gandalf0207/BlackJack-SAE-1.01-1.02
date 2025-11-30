@@ -24,6 +24,8 @@ public class ExtendedBlackjack {
      * Ce couple est ensuite transmis à la fonction {@link #affichageEndGame} pour afficher les résultats.
      */
     public static void main(String[] args) {
+
+        test();
         // input nb players
         int nbPlayer = askInfosInt(1, 6, "Donner le nombre de joueurs (entre 1 et 6) : ");
 
@@ -35,6 +37,16 @@ public class ExtendedBlackjack {
 
         // affichage infos
         affichageEndGame(infos);
+    }
+
+    public static void test() {
+        var pHand = new int[]{3, 1, 2, 1};
+        var boolPlayerInsurance = true;
+        displayPlayerGameState(56.25, 16.8, pHand, boolPlayerInsurance);
+        //solde = 56.25 € / mise = 16.8 € / assurance = 4.2 € / cartes : as, 2 et as
+
+
+
     }
 
 
@@ -448,7 +460,7 @@ public class ExtendedBlackjack {
      */
     public static void displayPlayerResult(int i, double pMoney, double pBet, int[] pHand, int pScore, int dealerScore, double pNewMoney, boolean pInsur) {
         output.println(String.format("\nRésultat du joueur %d", i + 1));
-        output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(pHand)));
+        displayPlayerGameState(pMoney, pBet, pHand, pInsur);
 
         if (bestScore(pHand) > 21) {
             output.println("Tu as dépassé 21 points.");
@@ -478,7 +490,7 @@ public class ExtendedBlackjack {
                 }
 
             if(pInsur) {
-                output.println("Tu t'es assuré contre un Black Jack du croupier.");
+                output.println("Tu t.es assuré contre un Black Jack du croupier.");
                 if(dealerScore == 22) {
                     output.println(String.format("Le croupier a fait un Black Jack, tu récupères 2 fois ta prime d'assurance, soit %s €", 0.5*pBet));
                 } else {
@@ -719,7 +731,7 @@ public class ExtendedBlackjack {
         for (int i = 0; i < nbCards; i++) {
             String carac;
             if (i < nbCards - 2) {
-                carac = " , ";
+                carac = ", ";
             } else if (i == nbCards - 2) {
                 carac = " et ";
             } else {
@@ -845,10 +857,10 @@ public class ExtendedBlackjack {
      */
     public static void displayPlayerGameState(double pMoney, double pBet, int[] phand, boolean pInsur) {
         if(pInsur) {
-            output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(phand)));
+            output.println(String.format("solde = %s € / mise = %s € / assurance = %s € / cartes : %s ", pMoney, pBet,0.25*pBet, getMain(phand)));
         }
         else {
-            output.println(String.format("solde = %s € / mise = %s € / assurance = %s € / cartes : %s ", pMoney, pBet,0.25*pBet, getMain(phand)));
+            output.println(String.format("solde = %s € / mise = %s € / cartes : %s ", pMoney, pBet, getMain(phand)));
         }
     }
 
@@ -885,7 +897,7 @@ public class ExtendedBlackjack {
             }
 
             // on affiche les points que l'on a
-            if (minScore != bestScore) { // 2 score de points possible (as valent 1 ou 11)
+            if (minScore != bestScore && !doubleBet) { // 2 score de points possible (as valent 1 ou 11)
                 output.println(String.format("Tu as %d ou %d points.", minScore, bestScore));
             } else {
                 output.println(String.format("Tu as %d points.", bestScore));
