@@ -150,16 +150,19 @@ public class ExtendedBlackjack {
         output.println(String.format("Le croupier a %d points.\n", bestScore(cardCroupier)));
 
         for (int i = 0; i < active.length; i++) {
-            // variables utilitaires
-            int pScore = playerScore[i];
-            int dealerScore = pointDealer;
-            double pBet = bet[i];
-            double pMoney = money[i];
-            // mie à jour du solde des joueurs
-            money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore, insurance[i]);
 
-            // affichage des informations après le tour
-            displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i], insurance[i]);
+            if(active[i]) {
+                // variables utilitaires
+                int pScore = playerScore[i];
+                int dealerScore = pointDealer;
+                double pBet = bet[i];
+                double pMoney = money[i];
+                // mie à jour du solde des joueurs
+                money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore, insurance[i]);
+
+                // affichage des informations après le tour
+                displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i], insurance[i]);
+            }
         }
 
 
