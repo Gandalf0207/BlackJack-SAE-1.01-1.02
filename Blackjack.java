@@ -137,15 +137,18 @@ public class Blackjack {
 
         for (int i = 0; i < active.length; i++) {
             // variables utilitaires
-            int pScore = playerScore[i];
-            int dealerScore = pointDealer;
-            double pBet = bet[i];
-            double pMoney = money[i];
-            // mie à jour du solde des joueurs
-            money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
 
-            // affichage des informations après le tour
-            displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i]);
+            if(active[i]) {
+                int pScore = playerScore[i];
+                int dealerScore = pointDealer;
+                double pBet = bet[i];
+                double pMoney = money[i];
+                // mie à jour du solde des joueurs
+                money[i] = playerNewMoney(pMoney, pBet, pScore, dealerScore);
+
+                // affichage des informations après le tour
+                displayPlayerResult(i, pMoney, pBet, cardPlayer[i], pScore, dealerScore, money[i]);
+            }
         }
 
 
