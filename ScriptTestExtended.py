@@ -31,7 +31,8 @@ listCmd = [
     # mail du 28 / 11 à 14h02
     r'''find . -name ExtendedBlackjack.java -exec bash -c "echo 'var indiceJoueur = 1; var solde = 150.75; var mise = 32; ExtendedBlackjack.displayPlayerResult(indiceJoueur, solde, mise, new int[]{3, 1, 2, 4}, 17, 22, 166.75, true)' | jshell {} | grep -e 'Résultat du joueur 2' -e 'solde = 150.75 € / mise = 32.0 € / assurance = 8.0 € / cartes : as, 2 et 4' -e 'Tu as 17 points.' -e 'Tu perds contre le croupier, tu ne récupères rien.' -e 'Tu t.es assuré contre un Black Jack du croupier.' | wc -l | grep -q 5 && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 
-
+    # mail du 02 / 12 à 15h09
+    r'''find . -name ExtendedBlackjack.java -exec bash -c "echo 'ExtendedBlackjack.playerNewMoney(32.5, 10, 20, 22, true);' | jshell {} | grep -q '==> 37.5' && echo {} OK || echo {} ÉCHEC" \; 2>/dev/null | sort''',
 ]
 
 if __name__ == "__main__":
