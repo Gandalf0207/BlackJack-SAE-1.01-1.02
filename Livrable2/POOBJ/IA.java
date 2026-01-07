@@ -1,5 +1,7 @@
 package POOBJ;
 
+import java.beans.beancontext.BeanContext;
+
 /**
  * La classe IA définit le comportement intelligent du joueur.
  * Elle repose sur le calcul de l'espérance de gain (gain attendu) en comparant
@@ -18,7 +20,7 @@ public class IA {
 
     /**
      * Constructeur de l'IA pour un tour donné.
-     * 
+     *
      * @param aCardMinValue Valeur faciale de la carte visible du croupier (1 à 10).
      */
     public IA(int aCardMinValue) {
@@ -31,21 +33,41 @@ public class IA {
      * Affiche une matrice 2D et optionnellement la somme de ses lignes.
      */
     public static void displayMat(double[][] m, boolean displaySum) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        int cpt = 0;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                cpt += m[i][j];
+                System.out.print(m[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        if(displaySum) {
+            System.out.print("Somme des lignes : " + cpt);
+        }
     }
 
     /**
      * Affiche le tableau 3D des espérances de gain si le joueur tire.
      */
     public static void displayArray3D(double[][][] m) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        for (int i = 0; i < m.length; i++) {
+            System.out.println("i=" + i);
+            for (int j = 0; j < m[i].length; j++) {
+                System.out.print("  j=" + j + ": ");
+                for (int k = 0; k < m[i][j].length; k++) {
+                    System.out.print(m[i][j][k] + " ");
+                }
+                System.out.println();
+            }
+        }
     }
 
     // --- Logique de Simulation (Monte-Carlo) ---
 
     /**
      * Simule un tour complet du croupier à partir d'une carte initiale.
-     * 
+     *
      * @return Le résultat codé : 0 si Bust (>21), 1 à 5 pour les scores 17 à 21, 6
      *         pour Blackjack.
      */
@@ -64,14 +86,26 @@ public class IA {
      * Remplit la matrice globale des probabilités du score du croupier.
      */
     public static double[][] computeDealerScoreProba(int nbSimul) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double[][] dealerScoreProba = new double[10][7];
+
+
+        return dealerScoreProba;
     }
 
     /**
      * Vérifie si deux matrices de probabilités sont proches à un epsilon près.
      */
     public static boolean checkSameProba(double[][] m1, double[][] m2, double epsilon) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        for(int i = 0; i < m1.length; i++) {
+            for(int j = 0; j < m1[i].length; j++) {
+                if (Math.abs(m1[i][j] - m2[i][j]) > epsilon) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+
     }
 
     /**
@@ -105,7 +139,20 @@ public class IA {
      * Calcule le meilleur score théorique après avoir pioché une carte spécifique.
      */
     public static int theBestScore(int minScore, int hasAnAce, int rank) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+
+        int bestScore = minScore;
+
+        if(bestScore + rank < 22) {
+            bestScore += rank;
+            if (bestScore < 12 && hasAnAce==1) {
+                bestScore += 10;
+            }
+        }
+        else {
+            bestScore = 0;
+        }
+
+        return bestScore;
     }
 
     /**
