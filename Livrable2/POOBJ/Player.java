@@ -1,7 +1,7 @@
 package POOBJ;
 
 /**
- * Représente un joueur de  Blac kjack, qu'il soit humain ou contrôlé par l'IA.
+ * Représente un joueur de Blac kjack, qu'il soit humain ou contrôlé par l'IA .
  * Gère le solde, la mise, la main de cartes et les décisions stratégiques
  * (tirer, s'arrêter, doubler sa mise, s'assurer ou abandonner).
  */
@@ -64,7 +64,8 @@ public class Player {
      *         son score n'est pas définitif).
      */
     public boolean displayMinScore(boolean isFinalScore) {
-        return (this.hand.minScore() != this.hand.bestScore()) && !isFinalScore && !this.doubleBet && this.hand.minScore() < 21 && this.bestScore()< 21;
+        return (this.hand.minScore() != this.hand.bestScore()) && !isFinalScore && !this.doubleBet
+                && this.hand.minScore() < 21 && this.bestScore() < 21;
     }
 
     /**
