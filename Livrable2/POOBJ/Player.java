@@ -64,7 +64,7 @@ public class Player {
      *         son score n'est pas définitif).
      */
     public boolean displayMinScore(boolean isFinalScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return (this.hand.minScore() != this.hand.bestScore()) && !isFinalScore && !this.doubleBet && this.hand.minScore() < 21 && this.bestScore()< 21;
     }
 
     /**
