@@ -42,6 +42,27 @@ public class Hand {
      */
     public void addCard(Card c) {
         this.cards.addCard(c);
+
+        if(c.minValue() == 1) {
+            this.hasAnAce = true;
+        }
+
+        if(this.minScore + c.minValue() < 22) {
+            this.minScore += c.minValue();
+
+            if (this.hasAnAce && this.minScore + 10 < 22) {
+                this.bestScore = this.minScore + 10;
+            }
+            else {
+                this.bestScore = this.minScore;
+            }
+        }
+        else {
+            this.minScore = 0;
+            this.bestScore = 0;
+        }
+
+
         this.minScore = this.minScore();
         this.hasAnAce = this.hasAnAce ? this.hasAnAce:this.hasAnAce();
         this.bestScore = this.hasAnAce ? this.bestScore():this.minScore;
@@ -49,29 +70,17 @@ public class Hand {
 
     /** @return Le score minimal (As = 1). */
     public int minScore() {
-        String[] allCards = cards.toString().split(" ");
-        int cpt = 0;
-        for(int i = 0; i < allCards.length; i++) {
-            cpt += Integer.parseInt(allCards[i]);
-        }
-
-        return cpt > 21 ? 0:cpt;
+        return this.minScore;
     }
 
     /** @return Vrai si la main possède au moins un As. */
     public boolean hasAnAce(){
-        String[] allCards = cards.toString().split(" ");
-        for(int i = 0; i < allCards.length; i++) {
-            if(Integer.parseInt(allCards[i]) == 1) {
-                return true;
-            }
-        }
-        return false;
+        return this.hasAnAce;
     }
 
     /** @return Le score optimal (As = 11 si possible). */
     public int bestScore() {
-        return (this.minScore + 10) > 21 ? this.minScore:this.minScore+10;
+        return this.bestScore;
     }
 
 } // end class Hand
