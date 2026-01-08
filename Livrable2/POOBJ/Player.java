@@ -70,7 +70,7 @@ public class Player {
     /**
      * Formate le score pour l'affichage.
      *
-     * @param isFinalScore Indique si c'est le score final.
+     * @param isFinalScore Indique si c'est le s core final.
      * @return Une chaîne type ", tu as 7 ou 17 points." ou ", tu as 17 points."
      */
     public String scoreToString(boolean isFinalScore) {
