@@ -9,37 +9,41 @@ public class Card {
     private final int rank;
 
     // Noms littéraux des rangs pour l'affichage
-    private static final String[] stringRankNames = {"zéro", "as", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "valet", "dame", "roi"};
+    private static final String[] stringRankNames = { "zéro", "as", "deux", "trois", "quatre", "cinq", "six", "sept",
+            "huit", "neuf", "dix", "valet", "dame", "roi" };
 
     /**
      * Constructeur de la carte.
+     *
      * @param rank Le rang de la carte (entier de 1 à 13).
      */
     public Card(int rank) {
-	    this.rank = rank;
+        this.rank = rank;
     }
 
     /**
-     * @return Le nom de la carte sous forme de chaîne de caractères (ex: "as", "roi").
+     * @return Le nom de la carte sous forme de chaîne de caractères (ex: "as",
+     *         "roi").
      */
-    public String toString(){
+    public String toString() {
         return Card.stringRankNames[this.rank]; // access static way
     }
 
     /**
      * Calcule la valeur minimale de la carte pour le score.
-     * @return 1 pour un As, 10 pour les figures (V, D, R), ou la valeur du rang sinon.
+     *
+     * @return 1 pour un As, 10 pour les figures (V, D, R), ou la valeur du rang
+     *         sinon.
      */
-    public int minValue(){
-        return this.rank < 9 ? this.rank+1:10;
+    public int minValue() {
+        return this.rank < 10 ? this.rank : 10;
     }
 
     /**
      * @return Vrai si la carte est un As, faux sinon.
      */
     public boolean isAnAce() {
-        return this.rank == 0;
+        return this.rank == 1;
     }
 
 } // end class Card
-
