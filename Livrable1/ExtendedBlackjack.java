@@ -39,6 +39,15 @@ public class ExtendedBlackjack {
         affichageEndGame(infos);
     }
 
+    public static void test() {
+        var pHand = new int[]{3, 1, 2, 1};
+        var boolPlayerInsurance = true;
+        displayPlayerGameState(56.25, 16.8, pHand, boolPlayerInsurance);
+        //solde = 56.25 € / mise = 16.8 € / assurance = 4.2 € / cartes : as, 2 et as
+
+
+
+    }
 
 
     /**
