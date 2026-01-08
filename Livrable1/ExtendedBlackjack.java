@@ -25,7 +25,7 @@ public class ExtendedBlackjack {
      */
     public static void main(String[] args) {
 
-        test();
+
         // input nb players
         int nbPlayer = askInfosInt(1, 6, "Donner le nombre de joueurs (entre 1 et 6) : ");
 
@@ -39,15 +39,6 @@ public class ExtendedBlackjack {
         affichageEndGame(infos);
     }
 
-    public static void test() {
-        var pHand = new int[]{3, 1, 2, 1};
-        var boolPlayerInsurance = true;
-        displayPlayerGameState(56.25, 16.8, pHand, boolPlayerInsurance);
-        //solde = 56.25 € / mise = 16.8 € / assurance = 4.2 € / cartes : as, 2 et as
-
-
-
-    }
 
 
     /**
@@ -247,7 +238,7 @@ public class ExtendedBlackjack {
      * @param isPlayer  true si c'est un joueur, false si c'est le croupier
      * @param deck      sabot de cartes du jeu
      * @return -1 si le joueur perd (dépassement), 0 si le croupier perd, 1 à 21 selon le score obtenu
-     * @see #displayNewCardAndPoints(int, int, int, boolean, boolean) 
+     * @see #displayNewCardAndPoints(int, int, int, boolean, boolean)
      * @see #drawCard(int[], int[])
      * @see #updateBestScore(int, boolean)
      * @see #updateMinScore(int, int)
@@ -315,7 +306,7 @@ public class ExtendedBlackjack {
      * @param playerScore    scores finaux de chaque joueur à la fin de leur tour
      * @param deck           sabot de cartes du jeu
      * @return score final du croupier
-     * @see #playerPlayTurn(int, double[], double[], int[], int[], boolean[], boolean) 
+     * @see #playerPlayTurn(int, double[], double[], int[], int[], boolean[], boolean)
      * @see #dealerPlayTurn(int[], int[])
      */
     public static int playTurn(boolean[] playerIsActive, double[] money, double[] bet, int[][] cardPlayer, int[] dealerHand, int[] playerScore, int[] deck, boolean[] insurance) {
@@ -342,12 +333,12 @@ public class ExtendedBlackjack {
      * @param pHand  main du joueur
      * @param deck   sabot de cartes du jeu
      * @return score du joueur : -1 si défaite, 1 à 21 selon le score, 22 si dépassement
-     * @see #displayPlayerGameState(double, double, int[], boolean) 
+     * @see #displayPlayerGameState(double, double, int[], boolean)
      * @see #minScore(int[])
      * @see #bestScore(int[])
      * @see #hasAnAce(int[])
      * @see #displayBlackJack(boolean)
-     * @see #playDrawingPhase(int[], int, boolean, int, boolean, int[], boolean) 
+     * @see #playDrawingPhase(int[], int, boolean, int, boolean, int[], boolean)
      */
     public static int playerPlayTurn(int i, double[] money, double[] bet, int[] pHand, int[] deck, boolean[] insurance, boolean dealerHasAnAce) {
         output.println(String.format("\n--> Tour du joueur %d", i + 1));
