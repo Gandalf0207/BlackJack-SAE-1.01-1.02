@@ -1,7 +1,7 @@
 package POOBJ;
 
 /**
- * Représente un joueur de Blackjack, qu'il soit humain ou contrôlé par l'IA.
+ * Représente un joueur de Blac kjack, qu'il soit humain ou contrôlé par l'IA.
  * Gère le solde, la mise, la main de cartes et les décisions stratégiques
  * (tirer, s'arrêter, doubler sa mise, s'assurer ou abandonner).
  */
