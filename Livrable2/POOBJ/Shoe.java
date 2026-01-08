@@ -14,13 +14,13 @@ public class Shoe {
 
     /**
      * Constructeur : Remplit le sabot avec n paquets de 52 cartes.
-     * 
+     *
      * @param n Nombre de paquets (entre 1 et 8).
      */
     public Shoe(int n) {
         this.numberOfDecks = n;
-        this.cards = new CardSequence(n * 52, false);
-        for (int i = 0; i < n; i++) {
+        this.cards = new CardSequence(this.numberOfDecks * 52, false);
+        for (int i = 0; i < this.numberOfDecks; i++) {
             for (int j = 1; j < 14; j++) {
                 for (int k = 0; k < 4; k++) {
                     this.cards.addCard(new Card(j));
@@ -38,7 +38,7 @@ public class Shoe {
 
     /**
      * Action : Retire la carte du dessus du sabot.
-     * 
+     *
      * @return La carte tirée.
      */
     public Card drawCard() {
