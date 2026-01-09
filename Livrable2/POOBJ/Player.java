@@ -64,9 +64,9 @@ public class Player {
      *         son score n'est pas définitif).
      */
     public boolean displayMinScore(boolean isFinalScore) {
-        return (this.hand.minScore() != this.hand.bestScore())
+        return (this.minScore() != this.bestScore())
                 && !isFinalScore && !this.doubleBet
-                && this.hand.minScore() < 21 && this.bestScore() < 21;
+                && this.minScore() < 21 && this.bestScore() < 21;
     }
 
     /**
@@ -76,7 +76,8 @@ public class Player {
      * @return Une chaîne type ", tu as 7 ou 17 points." ou ", tu as 17 points."
      */
     public String scoreToString(boolean isFinalScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return displayMinScore(isFinalScore) ? String.format("tu as %s ou %s points", this.minScore(), this.bestScore())
+                : String.format("tu as %s points", this.bestScore());
     }
 
     /**
@@ -84,39 +85,41 @@ public class Player {
      *         cartes et score).
      */
     public String playerToString(boolean isFinalScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return String.format("Joueurs : n°%s, solde : %s€, mise : %s€, assurence : %s, cartes : %s, score : %s",
+                this.num, this.balance, this.bet, this.insurance, this.hand.toString(),
+                this.scoreToString(isFinalScore));
     }
 
     // --- Accesseurs de score basés sur la classe Hand ---
     public int minScore() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return this.hand.minScore();
     }
 
     public boolean hasAnAce() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return this.hand.hasAnAce();
     }
 
     public int bestScore() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return this.hand.bestScore();
     }
 
     /** @return true si le joueur participe encore au jeu. */
     public boolean active() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return this.active;
     }
 
     /**
      * Action : Ajoute une carte à la main du joueur.
      */
     public void takeCard(Card card) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.hand.addCard(card);
     }
 
     /**
      * Action : Retire définitivement le joueur du jeu.
      */
     public void eliminate() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.active = false;
     }
 
     /**
@@ -127,7 +130,15 @@ public class Player {
      * @return true si le joueur quitte la table (mise nulle).
      */
     public boolean eliminatedWhenCollectingBet() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.bet = ui.askForBet(true, this.num, this.balance, ...);
+        if(this.bet == 0.0) {
+            this.eliminate();
+            return true;
+        }
+        else {
+            this.balance -= this.bet;
+            return false;
+        }
     }
 
     /**
@@ -137,7 +148,16 @@ public class Player {
      * supplémentaire.
      */
     public void chooseDoubleBet() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        if(this.balance >= this.bet) {
+            if(ui.askForDoubleBet(true, ...)) {
+                this.balance -= this.bet;
+                this.bet*= 2;
+                this.doubleBet = true;
+            }
+        }
+        else {
+            ... // afficher que le player ne peut pas doubler car pas assez d'argent
+        }
     }
 
     /**
@@ -145,15 +165,20 @@ public class Player {
      * Pré-requis : La carte visible du croupier doit être un As.
      * Le coût est fixé au quart (1/4) de la mise actuelle.
      */
-    public void chooseInsurance() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+    public void chooseInsurance() { ... // need help pour savoir comment get la carte
+        if(this.strategy.chooseInsurance()) {
+            this.insurance = true;
+            this.balance -= (1/4)*this.bet;
+        }
     }
 
     /**
      * Action : Demande au joueur s'il souhaite abandonner le tour (Surrender).
      */
     public void chooseToSurrender() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        if (ui.askForSurrender(true, this.bet, this.active)) {
+            this.active = false;
+        }
     }
 
     /**
