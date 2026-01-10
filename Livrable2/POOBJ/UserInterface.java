@@ -19,7 +19,7 @@ public class UserInterface {
 
     /**
      * Constructeur avec paramètre.
-     * 
+     *
      * @param display Définit si les messages doivent être affichés ou non.
      */
     public UserInterface(boolean display) {
@@ -39,7 +39,7 @@ public class UserInterface {
     /**
      * Action : Affiche un message à la console uniquement si displayRounds est
      * vrai.
-     * 
+     *
      * @param message La chaîne de caractères à afficher.
      */
     public void displayMessage(String message) {
@@ -67,7 +67,7 @@ public class UserInterface {
     /**
      * Action : Pose une question et attend une réponse "oui" ou "non".
      * pré-requis : this.displayRounds = true
-     * 
+     *
      * @return true pour "oui", false pour "non".
      */
     public boolean readBoolean(String question) {
@@ -82,7 +82,7 @@ public class UserInterface {
     /**
      * Action : Affiche le choix booléen qu'un ordinateur a pris si
      * this.displayRounds = true
-     * 
+     *
      * @param ansComputer La décision prise par l'IA.
      * @return La décision transmise en paramètre.
      */
@@ -95,7 +95,7 @@ public class UserInterface {
     /**
      * Action : Demande une décision binaire, en adaptant la méthode selon la nature
      * du joueur.
-     * 
+     *
      * @param isHuman     true si le joueur est humain, false sinon.
      * @param question    La question à poser.
      * @param ansComputer Le choix déjà déterminé par l'IA.
@@ -133,7 +133,7 @@ public class UserInterface {
 
     /**
      * Demande au joueur s'il veut tirer une carte (Hit) ou s'arrêter (Stand).
-     * 
+     *
      * @return true si le joueur choisit Hit, false s'il choisit Stand.
      */
     public boolean askForHitOrStand(boolean isHuman, boolean ansComputer) {
@@ -287,7 +287,7 @@ public class UserInterface {
 
     /**
      * Affiche l'état complet d'un joueur.
-     * 
+     *
      * @param isFinalScore : permet de déterminer si 1 ou 2 valeurs de score sont à
      *                     afficher
      */
@@ -329,5 +329,8 @@ public class UserInterface {
             this.displayMessage("Tu n'as plus d'argent, tu ne peux plus jouer !");
         }
     }
+
+    //on me demande le gaininsur dans la méthode d'avant, il sert à quoi ?
+
 
 } // end class UserInterface

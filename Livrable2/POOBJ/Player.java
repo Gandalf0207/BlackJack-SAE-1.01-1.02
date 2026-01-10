@@ -221,7 +221,21 @@ public class Player {
      * @param upCardMinValue Valeur de la carte visible du croupier.
      */
     public void playTurn(Dealer dealer, int upCardMinValue) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.strategy = new IA(upCardMinValue);
+
+        // propositions es extensions :
+        this.chooseDoubleBet();
+
+        if(dealer.hasBlackjack()) {
+            this.chooseInsurance();
+        }
+
+        if(!this.doubleBet) {
+            this.chooseToSurrender();
+        }
+
+        // pioche
+        this.playDrawingPhase(dealer);
     }
 
     /**
@@ -253,7 +267,30 @@ public class Player {
      *         (le joueur a gagné sans Blackjack)
      */
     public double calculateGain(Dealer dealer, double coefBlackjack) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+
+        if (this.surrender) {
+            //surrender
+            return this.bet/2;
+        }
+
+        if(this.bestScore() > dealer.bestScore()) {
+            if(this.hasBlackjack) {
+                //gain player avec blackjack
+                return this.bet * 3;
+            }
+            else {
+                // gain player sans blackjack
+                return this.bet * (coefBlackjack -0.5);
+            }
+        }
+        else if (this.hasBlackjack && dealer.hasBlackjack()) {
+            // récup de mise si double blackjack
+            return this.bet;
+        }
+        else {
+            // calcul assurence si player assuré et blackjack dealer sinon le player a perdu
+            return this.calculateGainInsur(dealer.hasBlackjack());
+        }
     }
 
     /**
@@ -267,7 +304,7 @@ public class Player {
      * @return le gain du joueur lié à l'assurance
      */
     public double calculateGainInsur(boolean dealerHasBlackjack) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return this.insurance && dealerHasBlackjack ? this.bet/2 : 0;
     }
 
     /**
@@ -280,7 +317,9 @@ public class Player {
      * @return le nouveau solde du joueur
      */
     public double processAndDisplayResult(Dealer dealer, double coefBlackjack) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double gain = this.calculateGain(dealer, coefBlackjack);
+        this.ui.displayPlayerResult(gain, gain, this.balance, this.bet, this.insurance);
+        return this.balance + gain;
     }
 
 } // end class Player
