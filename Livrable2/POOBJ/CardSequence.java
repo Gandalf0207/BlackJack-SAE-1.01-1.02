@@ -20,11 +20,9 @@ public class CardSequence {
      * @param isInAH Indique si la séquence appartient à une main (true) ou un sabot (false).
      */
     public CardSequence(int nbCardsMax, boolean isInAH){
-        if(nbCardsMax >= 0) {
-            this.seq = new Card[nbCardsMax];
-            this.isInAHand = isInAH;
-            this.nbCards = 0;
-        }
+        this.seq = new Card[nbCardsMax];
+        this.isInAHand = isInAH;
+        this.nbCards = 0;
     }
 
     /**

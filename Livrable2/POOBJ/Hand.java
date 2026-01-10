@@ -43,29 +43,19 @@ public class Hand {
     public void addCard(Card c) {
         this.cards.addCard(c);
 
-        if(c.minValue() == 1) {
+        if (c.isAnAce()) {
             this.hasAnAce = true;
         }
 
-        if(this.minScore + c.minValue() < 22) {
-            this.minScore += c.minValue();
 
-            if (this.hasAnAce && this.minScore + 10 < 22) {
-                this.bestScore = this.minScore + 10;
-            }
-            else {
-                this.bestScore = this.minScore;
-            }
+        this.minScore += c.minValue();
+
+        if (this.hasAnAce && this.minScore + 10 <= 21) {
+            this.bestScore = this.minScore + 10;
         }
         else {
-            this.minScore = 0;
-            this.bestScore = 0;
+            this.bestScore = this.minScore;
         }
-
-
-        this.minScore = this.minScore();
-        this.hasAnAce = this.hasAnAce ? this.hasAnAce:this.hasAnAce();
-        this.bestScore = this.hasAnAce ? this.bestScore():this.minScore;
     }
 
     /** @return Le score minimal (As = 1). */

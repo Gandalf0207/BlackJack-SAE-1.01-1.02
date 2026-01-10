@@ -130,7 +130,7 @@ public class Player {
      * @return true si le joueur quitte la table (mise nulle).
      */
     public boolean eliminatedWhenCollectingBet() {
-        this.bet = ui.askForBet(true, this.num, this.balance, ...);
+        this.bet = ui.askForBet(true, this.num, this.balance, 0.0);
         if(this.bet == 0.0) {
             this.eliminate();
             return true;
@@ -149,7 +149,7 @@ public class Player {
      */
     public void chooseDoubleBet() {
         if(this.balance >= this.bet) {
-            if(ui.askForDoubleBet(true, ...)) {
+            if(ui.askForDoubleBet(true, this.strategy.chooseDoubleBet(this.minScore(), this.hasAnAce(), this.bestScore()))) {
                 this.balance -= this.bet;
                 this.bet*= 2;
                 this.doubleBet = true;
@@ -165,8 +165,8 @@ public class Player {
      * Pré-requis : La carte visible du croupier doit être un As.
      * Le coût est fixé au quart (1/4) de la mise actuelle.
      */
-    public void chooseInsurance() { ... // need help pour savoir comment get la carte
-        if(this.strategy.chooseInsurance()) {
+    public void chooseInsurance() {
+        if(this.ui.askForInsurance(true, this.bet*(1/4), this.strategy.chooseInsurance())) {
             this.insurance = true;
             this.balance -= (1/4)*this.bet;
         }

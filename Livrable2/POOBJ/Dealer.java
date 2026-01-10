@@ -41,7 +41,7 @@ public class Dealer {
      * @return Une représentation textuelle de la main et du score du croupier.
      */
     public String toString() {
-        return String.format("Les cartes : %S. Le croupier a %s points", this.hand.cardsAsString(), this.bestScore());
+        return String.format("Les cartes : %s. Le croupier a %s points", this.hand.cardsAsString(), this.bestScore());
     }
 
     /**
@@ -73,7 +73,7 @@ public class Dealer {
      * @param card La carte à ajouter.
      */
     public void takeCard(Card card) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.hand.addCard(card);
     }
 
     /**
@@ -82,7 +82,11 @@ public class Dealer {
      * tire.
      */
     public void playDrawingPhase() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        while (this.bestScore() < 17) {
+            Card card = this.drawCard();
+            this.takeCard(card);
+            this.ui.displayCardDrawnAndScoreDealer(card, this.bestScore());
+        }
     }
 
     /**
@@ -92,7 +96,15 @@ public class Dealer {
      * 3. Sinon, lance la phase de pioche du dealer.
      */
     public void playTurn() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.ui.displayHandAndScoreDealer(this);
+
+        this.hasBlackjack = this.bestScore() == 21;
+
+        if (!this.hasBlackjack) {
+            this.playDrawingPhase();
+        }
+
+        this.ui.displayDealerFinalScore(this.bestScore());
     }
 
 } // end class Dealer

@@ -44,7 +44,7 @@ public class BlackjackGame {
      * pré-requis : 1 <= coefBlackjack <= 5 et 1 <= initialBalance <= 10000
      */
     public BlackjackGame(Player[] players, Dealer dealer, boolean displayRounds, UserInterface ui, double coefBlackjack, double initialBalance) {
-        
+
         throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
     }
 
