@@ -130,7 +130,8 @@ public class Player {
      * @return true si le joueur quitte la table (mise nulle).
      */
     public boolean eliminatedWhenCollectingBet() {
-        this.bet = ui.askForBet(true, this.num, this.balance, 0.0);
+        double computerBet = Math.min(1.0, this.balance); // indication file blackjack main
+        this.bet = ui.askForBet(this.human, this.num, this.balance, computerBet);
         if(this.bet == 0.0) {
             this.eliminate();
             return true;
@@ -149,14 +150,11 @@ public class Player {
      */
     public void chooseDoubleBet() {
         if(this.balance >= this.bet) {
-            if(ui.askForDoubleBet(true, this.strategy.chooseDoubleBet(this.minScore(), this.hasAnAce(), this.bestScore()))) {
+            if(ui.askForDoubleBet(this.human, this.strategy.chooseDoubleBet(this.minScore(), this.hasAnAce(), this.bestScore()))) {
                 this.balance -= this.bet;
                 this.bet*= 2;
                 this.doubleBet = true;
             }
-        }
-        else {
-            ... // afficher que le player ne peut pas doubler car pas assez d'argent
         }
     }
 
@@ -166,9 +164,9 @@ public class Player {
      * Le coût est fixé au quart (1/4) de la mise actuelle.
      */
     public void chooseInsurance() {
-        if(this.ui.askForInsurance(true, this.bet*(1/4), this.strategy.chooseInsurance())) {
+        if(this.ui.askForInsurance(true, this.bet / 4.0, this.strategy.chooseInsurance())) {
             this.insurance = true;
-            this.balance -= (1/4)*this.bet;
+            this.balance -= this.bet / 4.0;
         }
     }
 
@@ -176,8 +174,8 @@ public class Player {
      * Action : Demande au joueur s'il souhaite abandonner le tour (Surrender).
      */
     public void chooseToSurrender() {
-        if (ui.askForSurrender(true, this.bet, this.active)) {
-            this.active = false;
+        if (ui.askForSurrender(this.human, this.bet, this.strategy.chooseToSurrender(this.minScore(), this.hasAnAce(), this.bestScore()))) {
+            this.surrender = true;
         }
     }
 
@@ -223,10 +221,15 @@ public class Player {
     public void playTurn(Dealer dealer, int upCardMinValue) {
         this.strategy = new IA(upCardMinValue);
 
-        // propositions es extensions :
+        // blackjack
+        if (this.bestScore() == 21) {
+            this.hasBlackjack = true;
+            return;
+        }
+
         this.chooseDoubleBet();
 
-        if(dealer.hasBlackjack()) {
+        if(upCardMinValue == 1) {
             this.chooseInsurance();
         }
 
@@ -234,8 +237,9 @@ public class Player {
             this.chooseToSurrender();
         }
 
-        // pioche
-        this.playDrawingPhase(dealer);
+        if (!this.surrender) {
+            this.playDrawingPhase(dealer);
+        }
     }
 
     /**
@@ -270,7 +274,11 @@ public class Player {
 
         if (this.surrender) {
             //surrender
-            return this.bet/2;
+            return this.bet/2.0;
+        }
+
+        if(this.bestScore() > 21) {
+            return 0.0;
         }
 
         if(this.bestScore() > dealer.bestScore()) {
@@ -304,7 +312,7 @@ public class Player {
      * @return le gain du joueur lié à l'assurance
      */
     public double calculateGainInsur(boolean dealerHasBlackjack) {
-        return this.insurance && dealerHasBlackjack ? this.bet/2 : 0;
+        return this.insurance && dealerHasBlackjack ? this.bet/2.0 : 0.0;
     }
 
     /**
@@ -318,7 +326,8 @@ public class Player {
      */
     public double processAndDisplayResult(Dealer dealer, double coefBlackjack) {
         double gain = this.calculateGain(dealer, coefBlackjack);
-        this.ui.displayPlayerResult(gain, gain, this.balance, this.bet, this.insurance);
+        double gainInsur = this.calculateGainInsur(dealer.hasBlackjack());
+        this.ui.displayPlayerResult(gain, gainInsur, this.balance, this.bet, this.insurance);
         return this.balance + gain;
     }
 
