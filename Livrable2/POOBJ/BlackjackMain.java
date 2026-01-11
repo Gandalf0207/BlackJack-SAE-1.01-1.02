@@ -22,6 +22,18 @@ public class BlackjackMain {
         // probabilités/espérances
         IA.computeGainExpectedIfDraws();
 
+
+
+        System.out.println("Si Draw");
+        IA.displayArray3D(IA.gainExpectedIfDraws);
+        System.out.println();
+        System.out.println("Si Stand");
+        IA.displayMat(IA.gainExpectedIfStands, true);
+
+
+
+
+
         // Initialisation de deux interfaces : ui (standard/verbeuse) et uj (silencieuse
         // pour les tests)
         UserInterface ui = new UserInterface();

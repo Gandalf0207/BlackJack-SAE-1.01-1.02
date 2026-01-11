@@ -32,7 +32,6 @@ public class CardSequence {
      */
     public void reset(){
         if(this.isInAHand) {
-            this.seq = new Card[this.seq.length];
             this.nbCards = 0;
         }
         else {
@@ -58,10 +57,8 @@ public class CardSequence {
      * @param newCard La carte à ajouter.
      */
     public void addCard(Card newCard){
-        if(this.nbCards < this.seq.length) {
-            this.seq[this.nbCards] = newCard;
-            this.nbCards ++;
-        }
+        this.seq[this.nbCards] = newCard;
+        this.nbCards ++;
     }
 
     /**
@@ -70,13 +67,13 @@ public class CardSequence {
      * @return La carte retirée.
      */
     public Card removeCard(){
-        if(this.nbCards > 0) {
-            this.nbCards --;
-            return this.seq[this.nbCards];
+        if(this.nbCards == 0 && !this.isInAHand) {
+            this.reset();
         }
-        return null;
+        this.nbCards --;
+        return this.seq[this.nbCards];
     }
-
+    
     /**
      * Pré-requis : this.isInAHand = false
      * Action : Mélange aléatoirement les cartes du tableau (algorithme de permutation).

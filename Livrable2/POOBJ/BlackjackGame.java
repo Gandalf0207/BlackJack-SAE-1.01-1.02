@@ -50,10 +50,7 @@ public class BlackjackGame {
         this.ui = ui;
         this.coefBlackjack = coefBlackjack;
         this.initialBalance = initialBalance;
-        this.currentBalance = initialBalance;
         this.nbActive = this.players.length;
-        this.nbRounds = 0;
-        this.nbWinningRounds = 0;
     }
 
     /**
@@ -93,7 +90,9 @@ public class BlackjackGame {
         Card returnCardDealer = null;
         for(int i = 0; i < 2; i++) {
             for(Player p : this.players) {
-                p.takeCard(dealer.drawCard());
+                if(p.active()) {
+                    p.takeCard(dealer.drawCard());
+                }
             }
             Card carte = dealer.drawCard();
             if(i == 0) {
@@ -141,8 +140,12 @@ public class BlackjackGame {
     public double processAndDisplayResults() {
         double lastSolde = 0.0;
         for(Player p : this.players) {
+            double betAtStart = p.calculateGain(this.dealer, lastSolde);
             if(p.active()) {
                 lastSolde = p.processAndDisplayResult(this.dealer, this.coefBlackjack);
+            }
+            if(betAtStart > 1.0) {
+                this.nbWinningRounds ++;
             }
         }
         return lastSolde;
@@ -157,7 +160,7 @@ public class BlackjackGame {
      */
     public boolean endOfRound(double balance) {
         if(this.displayRounds) {// interactif
-            return this.nbActive != 0;
+            return this.nbActive > 0;
         }
         else { // roundsSimulation
             return this.roundsSimulation(balance);
@@ -189,27 +192,28 @@ public class BlackjackGame {
 
         this.currentBalance = balance;  // Mettre à jour après la comparaison
 
+        System.out.println();
         // Affichage toutes les 10 parties
         if (this.nbRounds % 10 == 0) {
-            this.ui.displayMessage("Partie n°" + this.nbRounds);
-            this.ui.displayMessage("Solde courant : " + round2digits(this.currentBalance) + " €");
-            this.ui.displayMessage("Ratio solde : " + round2digits(this.currentBalance / this.initialBalance));
-            this.ui.displayMessage("Taux de victoire : " + round2digits((double)this.nbWinningRounds / this.nbRounds));
+             System.out.println("Partie n°" + this.nbRounds);
+             System.out.println("Solde courant : " + round2digits(this.currentBalance) + " €");
+             System.out.println("Ratio solde : " + round2digits(this.currentBalance / this.initialBalance));
+             System.out.println("Taux de victoire : " + round2digits((double)this.nbWinningRounds / this.nbRounds));
         }
 
         // Conditions d'arrêt
         if (this.currentBalance <= 0.0) {
-            this.ui.displayMessage("Faillite après " + this.nbRounds + " parties !");
+            System.out.println("Faillite après " + this.nbRounds + " parties !");
             return false;
         }
 
         if (this.currentBalance >= 2.0 * this.initialBalance) {
-            this.ui.displayMessage("Solde doublé après " + this.nbRounds + " parties !");
+            System.out.println("Solde doublé après " + this.nbRounds + " parties !");
             return false;
         }
 
         if (this.nbRounds >= 10 * this.initialBalance) {
-            this.ui.displayMessage("Limite de " + (int)(10 * this.initialBalance) + " parties atteinte !");
+            System.out.println("Limite de " + (int)(10 * this.initialBalance) + " parties atteinte !");
             return false;
         }
 

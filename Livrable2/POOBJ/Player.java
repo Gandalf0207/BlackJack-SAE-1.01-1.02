@@ -164,7 +164,7 @@ public class Player {
      * Le coût est fixé au quart (1/4) de la mise actuelle.
      */
     public void chooseInsurance() {
-        if(this.ui.askForInsurance(true, this.bet / 4.0, this.strategy.chooseInsurance())) {
+        if(this.ui.askForInsurance(this.human, this.bet / 4.0, this.strategy.chooseInsurance())) {
             this.insurance = true;
             this.balance -= this.bet / 4.0;
         }
@@ -281,10 +281,14 @@ public class Player {
             return 0.0;
         }
 
+        if(dealer.bestScore() > 21) {
+            return this.bet * (coefBlackjack -0.5);
+        }
+
         if(this.bestScore() > dealer.bestScore()) {
             if(this.hasBlackjack) {
                 //gain player avec blackjack
-                return this.bet * 3;
+                return this.bet * coefBlackjack;
             }
             else {
                 // gain player sans blackjack
@@ -297,7 +301,7 @@ public class Player {
         }
         else {
             // calcul assurence si player assuré et blackjack dealer sinon le player a perdu
-            return this.calculateGainInsur(dealer.hasBlackjack());
+            return 0;
         }
     }
 

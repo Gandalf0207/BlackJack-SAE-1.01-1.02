@@ -1,7 +1,5 @@
 package POOBJ;
 
-import java.beans.beancontext.BeanContext;
-
 /**
  * La classe IA définit le comportement intelligent du joueur.
  * Elle repose sur le calcul de l'espérance de gain (gain attendu) en comparant
@@ -14,9 +12,18 @@ public class IA {
 
     // Matrices d'espérance de gain pré-calculées
     // [ScoreJoueur][CarteCroupier]
-    private static double[][] gainExpectedIfStands = new double[22][10];
+    public static double[][] gainExpectedIfStands = new double[22][10];
     // [ScoreMinJoueur][PossèdeAs][CarteCroupier]
-    private static double[][][] gainExpectedIfDraws = new double[21][2][10];
+    public static double[][][] gainExpectedIfDraws = new double[21][2][10];
+
+
+
+
+    ///
+    ///
+    private static final UserInterface interfaceUser = new UserInterface(false);
+    private static final Shoe shoe = new Shoe(4);
+    private static final Dealer dealer = new Dealer(shoe, interfaceUser);
 
     /**
      * Constructeur de l'IA pour un tour donné.
@@ -24,7 +31,7 @@ public class IA {
      * @param aCardMinValue Valeur faciale de la carte visible du croupier (1 à 10).
      */
     public IA(int aCardMinValue) {
-        dealerCardMinValue = aCardMinValue - 1;
+        dealerCardMinValue = aCardMinValue-1;
     }
 
     // --- Méthodes d'affichage (Vérification technique) ---
@@ -33,35 +40,37 @@ public class IA {
      * Affiche une matrice 2D et optionnellement la somme de ses lignes.
      */
     public static void displayMat(double[][] m, boolean displaySum) {
-        int cpt = 0;
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                cpt += m[i][j];
-                System.out.print(m[i][j] + " ");
-            }
-            System.out.println();
-        }
+            System.out.println("Gain :");
 
-        if(displaySum) {
-            System.out.print("Somme des lignes : " + cpt);
-        }
-    }
-
-    /**
-     * Affiche le tableau 3D des espérances de gain si le joueur tire.
-     */
-    public static void displayArray3D(double[][][] m) {
-        for (int i = 0; i < m.length; i++) {
-            System.out.println("i=" + i);
-            for (int j = 0; j < m[i].length; j++) {
-                System.out.print("  j=" + j + ": ");
-                for (int k = 0; k < m[i][j].length; k++) {
-                    System.out.print(m[i][j][k] + " ");
+            for (double[] m1 : m) {
+                String line = "";
+                double sum = 0.0;
+                for (int j = 0; j < m1.length; j++) {
+                    sum += m1[j];
+                    line += "\nContre " + (j + 1) + " : " + m1[j];
+                    if (j < m1.length - 1) {
+                        line += ", ";
+                    }
                 }
-                System.out.println();
+                if (displaySum) {
+                    double avg = sum / m1.length;
+                    line += "\nMoyenne des gains : " + avg;
+                }
+                System.out.println(line + "\n");
             }
         }
-    }
+
+        /**
+
+    Affiche le tableau 3D des espérances de gain si le joueur tire.*/
+    public static void displayArray3D(double[][][] m) {
+        int maxTab = m.length;
+        for (int i = 0; i < maxTab; i++) {
+            System.out.println("Score " + (i + 1) + " : ");
+            displayMat(m[i], true);
+
+            }
+        }
 
     // --- Logique de Simulation (Monte-Carlo) ---
 
@@ -71,15 +80,42 @@ public class IA {
      * @return Le résultat codé : 0 si Bust (>21), 1 à 5 pour les scores 17 à 21, 6
      *         pour Blackjack.
      */
-    public static int simulation(int i) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+    public static int simulation(int i) { // i compris entre 0 et 9
+        Card carte = new Card(i+1); // la valeur 10 = 4 xarte différentes, donc proba combiné
+
+        dealer.reset();
+        dealer.takeCard(carte);
+        dealer.takeCard(shoe.drawCard());
+        dealer.playDrawingPhase();
+
+        int bestScore = dealer.bestScore();
+
+        //tableau pdf valeur
+        if(bestScore > 21) {
+            return 0;
+        }
+        else if (dealer.hasBlackjack()) {
+            return 6;
+        }
+        else {
+            return bestScore- 16;
+        }
     }
 
     /**
      * Calcule les probabilités des scores finaux du croupier pour une carte donnée.
      */
     public static double[] computeLineDealerSP(int i, int nbSimul) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double[] tabSimulForI = new double[7];
+        for(int j = 0; j < nbSimul; j++ ) {
+            tabSimulForI[simulation(i)]++;
+        }
+
+        for(int j = 0; j < 7; j++) {
+            tabSimulForI[j] /= nbSimul*1.0;
+        }
+
+        return tabSimulForI;
     }
 
     /**
@@ -88,6 +124,9 @@ public class IA {
     public static double[][] computeDealerScoreProba(int nbSimul) {
         double[][] dealerScoreProba = new double[10][7];
 
+        for (int i = 0; i < 10; i++) {
+            dealerScoreProba[i] = computeLineDealerSP(i, nbSimul);
+        }
 
         return dealerScoreProba;
     }
@@ -112,8 +151,18 @@ public class IA {
      * Détermine le nombre de simulations nécessaires pour stabiliser les
      * probabilités.
      */
-    public static double[][] computeDealerScoreProba(double epsilon) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+    public static double[][] computeDealerScoreProba(double epsilon) { // IA
+        int n = 10000;
+        double[][] prev = new double[10][7];
+        double[][] cur = computeDealerScoreProba(n);
+        do {
+            for (int i = 0; i < prev.length; i++) {
+                prev[i] = cur[i];
+            }
+            n *= 2;
+            cur = computeDealerScoreProba(n);
+        } while (!checkSameProba(prev, cur, epsilon));
+        return cur;
     }
 
     // --- Calcul des Espérances ---
@@ -125,34 +174,75 @@ public class IA {
      * represente par y
      */
     public static double gain(int bestScore, int y) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        int scoreDearler = 16 + y;
+
+        if(bestScore > 21) {
+            return -1.0;
+        }
+
+        if(y == 6) {
+            return -1.0;
+        }
+
+        if(y ==0) {
+            return 1.5;
+        }
+
+        if(bestScore == scoreDearler) {
+            return 0;
+        }
+
+        if(bestScore > scoreDearler) {
+            return 1.5;
+        }
+
+        if(bestScore < scoreDearler) {
+            return -1;
+        }
+
+        return 0.0;
+
     }
 
     /**
      * Remplit la matrice de gain si le joueur décide de s'arrêter (Stand).
      */
     public static void computeGainExpectedIfStands() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double[][] dealerScoreProba = computeDealerScoreProba(0.003);
+
+        for(int bestScore = 0; bestScore < 22; bestScore ++) {
+            for(int dealerCardMinValue = 0; dealerCardMinValue < 10; dealerCardMinValue++) {
+                double esperance = 0;
+
+                for(int y = 0; y < 7; y++) {
+                    double gain = gain(bestScore, y);
+                    double p = dealerScoreProba[dealerCardMinValue][y];
+                    esperance += gain*p;
+                }
+                gainExpectedIfStands[bestScore][dealerCardMinValue] = esperance;
+            }
+        }
+
     }
 
     /**
      * Calcule le meilleur score théorique après avoir pioché une carte spécifique.
      */
     public static int theBestScore(int minScore, int hasAnAce, int rank) {
+        Card newCard = new Card(rank);
 
-        int bestScore = minScore;
+        int newMinScore = minScore + newCard.minValue();
 
-        if(bestScore + rank < 22) {
-            bestScore += rank;
-            if (bestScore < 12 && hasAnAce==1) {
-                bestScore += 10;
-            }
+        if(newMinScore > 21) {
+            return 0;
+        }
+
+        if (newMinScore + 10 <= 21 && (hasAnAce==1 || newCard.isAnAce())) {
+            return newMinScore += 10;
         }
         else {
-            bestScore = 0;
+            return newMinScore;
         }
-
-        return bestScore;
     }
 
     /**
@@ -160,7 +250,22 @@ public class IA {
      * supplémentaire.
      */
     public static void computeGainExpectedIfDraws() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        computeGainExpectedIfStands();
+        for(int bestScore = 0; bestScore < 21; bestScore ++) {
+            for(int as = 0; as < 2; as++) {
+                for(int y = 0; y < 10; y++) {
+                    double somme = 0;
+
+                    for(int carte = 1; carte < 14; carte ++) {
+                        int newScore = theBestScore(bestScore, as, carte);
+                        somme += gainExpectedIfStands[newScore][y];
+                    }
+
+                    somme /= 13.0;
+                    gainExpectedIfDraws[bestScore][as][y] = somme;
+                }
+            }
+        }
     }
 
     // --- Méthodes de décision (Utilisées par Player) ---
@@ -170,7 +275,10 @@ public class IA {
      * s'arrêter.
      */
     public boolean chooseToDraw(int minScore, boolean hasAnAce, int bestScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        if (bestScore >= 21) {
+            return false;
+        }
+        return gainExpectedIfStands[bestScore][this.dealerCardMinValue] < gainExpectedIfDraws[minScore][hasAnAce ? 1:0][this.dealerCardMinValue];
     }
 
     /**
@@ -178,7 +286,12 @@ public class IA {
      * positive.
      */
     public boolean chooseDoubleBet(int minScore, boolean hasAnAce, int bestScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        if (bestScore >= 21) {
+            return false;
+        }
+
+        double gainDraw = gainExpectedIfDraws[minScore][hasAnAce ? 1:0][this.dealerCardMinValue]*2;
+        return gainExpectedIfStands[bestScore][this.dealerCardMinValue] < gainDraw && gainDraw > 0.5;
     }
 
     /**
@@ -186,7 +299,9 @@ public class IA {
      * l'espérance reste négative.
      */
     public boolean chooseToSurrender(int minScore, boolean hasAnAce, int bestScore) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double gainS = gainExpectedIfStands[bestScore][this.dealerCardMinValue];
+        double gainD = gainExpectedIfDraws[minScore][hasAnAce ? 1:0][this.dealerCardMinValue];
+        return gainS < -0.5 && gainD < -0.5 ;
     }
 
     /**
@@ -199,7 +314,7 @@ public class IA {
      *
      */
     public boolean chooseInsurance() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        return false;
     }
 
 } // end class IA
