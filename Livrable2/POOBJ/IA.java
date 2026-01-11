@@ -174,31 +174,23 @@ public class IA {
      * represente par y
      */
     public static double gain(int bestScore, int y) {
-        int scoreDearler = 16 + y;
+        if (bestScore > 21 || bestScore == 0)
+            return -1.0;
 
-        if(bestScore > 21) {
+        if (y == 6) {
             return -1.0;
         }
 
-        if(y == 6) {
+        if (y == 0) {
+            return 1.5;
+        }
+
+        int dealerScore = y + 16;
+
+        if (bestScore > dealerScore)
+            return 1.5;
+        if (bestScore < dealerScore)
             return -1.0;
-        }
-
-        if(y ==0) {
-            return 1.5;
-        }
-
-        if(bestScore == scoreDearler) {
-            return 0;
-        }
-
-        if(bestScore > scoreDearler) {
-            return 1.5;
-        }
-
-        if(bestScore < scoreDearler) {
-            return -1;
-        }
 
         return 0.0;
 

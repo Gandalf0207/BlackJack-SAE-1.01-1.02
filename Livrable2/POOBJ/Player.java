@@ -86,7 +86,7 @@ public class Player {
      */
     public String playerToString(boolean isFinalScore) {
         return String.format("Joueurs : n°%s, solde : %s€, mise : %s€, assurence : %s, cartes : %s, score : %s",
-                this.num, this.balance, this.bet, this.insurance, this.hand.toString(),
+                this.num, this.balance, this.bet, this.insurance, this.hand.cardsAsString(),
                 this.scoreToString(isFinalScore));
     }
 
@@ -271,39 +271,35 @@ public class Player {
      *         (le joueur a gagné sans Blackjack)
      */
     public double calculateGain(Dealer dealer, double coefBlackjack) {
+            if (surrender) {
+                return bet / 2.0;
+            }
 
-        if (this.surrender) {
-            //surrender
-            return this.bet/2.0;
-        }
+            if (bestScore() > 21) {
+                return 0.0;
+            }
 
-        if(this.bestScore() > 21) {
+            if (dealer.bestScore() > 21) {
+                return hasBlackjack ? coefBlackjack * bet : (coefBlackjack - 0.5) * bet;
+            }
+
+            if (hasBlackjack && !dealer.hasBlackjack()) {
+                return coefBlackjack * bet;
+            }
+            if (dealer.hasBlackjack() && !hasBlackjack) {
+                return 0.0;
+            }
+
+            if (bestScore() > dealer.bestScore()) {
+                return (coefBlackjack - 0.5) * bet;
+            }
+
+            if (bestScore() == dealer.bestScore()) {
+                return bet;
+            }
+
             return 0.0;
         }
-
-        if(dealer.bestScore() > 21) {
-            return this.bet * (coefBlackjack -0.5);
-        }
-
-        if(this.bestScore() > dealer.bestScore()) {
-            if(this.hasBlackjack) {
-                //gain player avec blackjack
-                return this.bet * coefBlackjack;
-            }
-            else {
-                // gain player sans blackjack
-                return this.bet * (coefBlackjack -0.5);
-            }
-        }
-        else if (this.hasBlackjack && dealer.hasBlackjack()) {
-            // récup de mise si double blackjack
-            return this.bet;
-        }
-        else {
-            // calcul assurence si player assuré et blackjack dealer sinon le player a perdu
-            return 0;
-        }
-    }
 
     /**
      * Action : calcule le gain brut lié à l'assurance, r, c'est-à-dire ce que
@@ -332,7 +328,8 @@ public class Player {
         double gain = this.calculateGain(dealer, coefBlackjack);
         double gainInsur = this.calculateGainInsur(dealer.hasBlackjack());
         this.ui.displayPlayerResult(gain, gainInsur, this.balance, this.bet, this.insurance);
-        return this.balance + gain;
+        this.balance += gain + gainInsur;
+        return this.balance;
     }
 
 } // end class Player
