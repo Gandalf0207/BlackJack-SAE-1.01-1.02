@@ -16,9 +16,6 @@ public class IA {
     // [ScoreMinJoueur][PossèdeAs][CarteCroupier]
     private static double[][][] gainExpectedIfDraws = new double[21][2][10];
 
-
-
-
     ///
     ///
     private static final UserInterface interfaceUser = new UserInterface(false);
