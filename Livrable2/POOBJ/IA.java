@@ -12,9 +12,9 @@ public class IA {
 
     // Matrices d'espérance de gain pré-calculées
     // [ScoreJoueur][CarteCroupier]
-    public static double[][] gainExpectedIfStands = new double[22][10];
+    private static double[][] gainExpectedIfStands = new double[22][10];
     // [ScoreMinJoueur][PossèdeAs][CarteCroupier]
-    public static double[][][] gainExpectedIfDraws = new double[21][2][10];
+    private static double[][][] gainExpectedIfDraws = new double[21][2][10];
 
 
 
