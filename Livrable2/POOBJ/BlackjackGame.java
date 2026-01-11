@@ -44,8 +44,16 @@ public class BlackjackGame {
      * pré-requis : 1 <= coefBlackjack <= 5 et 1 <= initialBalance <= 10000
      */
     public BlackjackGame(Player[] players, Dealer dealer, boolean displayRounds, UserInterface ui, double coefBlackjack, double initialBalance) {
-
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        this.players = players;
+        this.dealer = dealer;
+        this.displayRounds = displayRounds;
+        this.ui = ui;
+        this.coefBlackjack = coefBlackjack;
+        this.initialBalance = initialBalance;
+        this.currentBalance = initialBalance;
+        this.nbActive = this.players.length;
+        this.nbRounds = 0;
+        this.nbWinningRounds = 0;
     }
 
     /**
@@ -66,7 +74,11 @@ public class BlackjackGame {
      * Si un joueur mise 0, il est retiré des joueurs actifs.
      */
     public void collectBets() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        for(Player p : this.players) {
+            if(p.active()) {
+                p.eliminatedWhenCollectingBet();
+            }
+        }
     }
 
     /**
@@ -75,7 +87,18 @@ public class BlackjackGame {
      * @return La première carte visible du croupier (Up-Card).
      */
     public Card dealInitialCards() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        Card returnCardDealer = null;
+        for(int i = 0; i < 2; i++) {
+            for(Player p : this.players) {
+                p.takeCard(dealer.drawCard());
+            }
+            Card carte = dealer.drawCard();
+            if(i == 0) {
+                returnCardDealer = carte;
+            }
+            dealer.takeCard(carte);
+        }
+        return returnCardDealer;
     }
 
     /**
@@ -83,7 +106,9 @@ public class BlackjackGame {
      * visible du croupier).
      */
     public void displayAllVisibleCards(Card upCard) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        for(Player p : this.players) {
+            this.ui.displayPlayerStatus(p, this.displayRounds);
+        }
     }
 
     /**
