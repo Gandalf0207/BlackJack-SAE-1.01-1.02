@@ -76,7 +76,10 @@ public class BlackjackGame {
     public void collectBets() {
         for(Player p : this.players) {
             if(p.active()) {
-                p.eliminatedWhenCollectingBet();
+                if (p.eliminatedWhenCollectingBet()) {
+                    this.nbActive --;
+                }
+
             }
         }
     }
@@ -107,8 +110,11 @@ public class BlackjackGame {
      */
     public void displayAllVisibleCards(Card upCard) {
         for(Player p : this.players) {
-            this.ui.displayPlayerStatus(p, this.displayRounds);
+            if(p.active()) {
+                this.ui.displayPlayerStatus(p, false);
+            }
         }
+        this.ui.displayDealerUpCard(upCard);
     }
 
     /**
@@ -118,7 +124,12 @@ public class BlackjackGame {
      *                       stratégie et l'assurance.
      */
     public void playTurns(int upCardMinValue) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        for(Player p : this.players) {
+            if(p.active()) {
+                p.playTurn(this.dealer, upCardMinValue);
+            }
+        }
+        this.dealer.playTurn();
     }
 
     /**
@@ -128,7 +139,13 @@ public class BlackjackGame {
      *         mono-joueur).
      */
     public double processAndDisplayResults() {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        double lastSolde = 0.0;
+        for(Player p : this.players) {
+            if(p.active()) {
+                lastSolde = p.processAndDisplayResult(this.dealer, this.coefBlackjack);
+            }
+        }
+        return lastSolde;
     }
 
     /**
@@ -139,7 +156,12 @@ public class BlackjackGame {
      * @return true si une nouvelle manche peut commencer, false sinon
      */
     public boolean endOfRound(double balance) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+        if(this.displayRounds) {// interactif
+            return this.nbActive != 0;
+        }
+        else { // roundsSimulation
+            return this.roundsSimulation(balance);
+        }
     }
 
     /**
@@ -157,8 +179,41 @@ public class BlackjackGame {
      *
      * @return true si une nouvelle partie peut commencer, false sinon.
      */
-    public boolean roundsSimulation(double balance) {
-        throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
+    public boolean roundsSimulation(double balance) { // aide IA
+        this.nbRounds++;
+
+        // Vérifier si le joueur a gagné cette partie
+        if (balance > this.currentBalance) {
+            this.nbWinningRounds++;
+        }
+
+        this.currentBalance = balance;  // Mettre à jour après la comparaison
+
+        // Affichage toutes les 10 parties
+        if (this.nbRounds % 10 == 0) {
+            this.ui.displayMessage("Partie n°" + this.nbRounds);
+            this.ui.displayMessage("Solde courant : " + round2digits(this.currentBalance) + " €");
+            this.ui.displayMessage("Ratio solde : " + round2digits(this.currentBalance / this.initialBalance));
+            this.ui.displayMessage("Taux de victoire : " + round2digits((double)this.nbWinningRounds / this.nbRounds));
+        }
+
+        // Conditions d'arrêt
+        if (this.currentBalance <= 0.0) {
+            this.ui.displayMessage("Faillite après " + this.nbRounds + " parties !");
+            return false;
+        }
+
+        if (this.currentBalance >= 2.0 * this.initialBalance) {
+            this.ui.displayMessage("Solde doublé après " + this.nbRounds + " parties !");
+            return false;
+        }
+
+        if (this.nbRounds >= 10 * this.initialBalance) {
+            this.ui.displayMessage("Limite de " + (int)(10 * this.initialBalance) + " parties atteinte !");
+            return false;
+        }
+
+        return true;  // Continue
     }
 
     /**

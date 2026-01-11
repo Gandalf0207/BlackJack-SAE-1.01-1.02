@@ -190,13 +190,13 @@ public class IA {
     }
 
     /**
-     * Justification mathématique de l'assurance :
-     * L'assurance coûte 1/4 de la mise et rapporte 2x si le croupier a un
-     * Blackjack.
-     * La probabilité que le croupier ait un 10 (10, J, Q, K) est de 4/13.
-     * Espérance = (4/13 * Gain) + (9/13 * Perte) = (4/13 * 0.5) + (9/13 * -0.25) =
-     * 2/13 - 2.25/13 = -0.25/13.
-     * L'espérance est négative, donc l'IA retourne 'false'.
+     *
+     * Pre-requis : la carte visible du croupier est un as
+     * Resultat : true si le joueur choisit de s'assurer et false sinon
+     * Mettre en commentaire ici la justification de votre resultat
+     *  (calcul d'esperance simple) ==>
+     *
+     *
      */
     public boolean chooseInsurance() {
         throw new RuntimeException("Méthode non implémentée ! Effacez cette ligne et écrivez le code nécessaire");
