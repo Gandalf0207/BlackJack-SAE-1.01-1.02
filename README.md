@@ -9,6 +9,7 @@ Ce projet consiste à développer en Java un jeu de cartes inspiré du BlackJack
 ### Les différents Livrables
 
 > **Le premier rendu** comprend deux versions du code :
+
 - une version normale,
 - une version avec extensions, qui ajoute des options supplémentaires pour les joueurs.
 
@@ -26,14 +27,12 @@ Le nombre de simulations nécessaires a été déterminé à l’aide des foncti
 
 L’objectif est d’obtenir des probabilités empiriques équivalentes entre matrices.
 
-
 #### 2. Paramètres de simulation
 
 - Mise : **1 €** par tour
 - Solde initial : **10 000 €**
 - Tours max par partie : **100 000**
 - Nombre de parties : **10 ou 100** selon les tests
-
 
 #### 3. Résultats – 10 simulations (précision faible)
 
@@ -47,8 +46,6 @@ L’objectif est d’obtenir des probabilités empiriques équivalentes entre ma
 
 ➡️ L’IA survit mais perd de l’argent à long terme.
 
-
-
 ###### Blackjack SAE (coef = 3.0)
 
 - Ratio moyen du solde final : **2.00**
@@ -57,8 +54,6 @@ L’objectif est d’obtenir des probabilités empiriques équivalentes entre ma
 - Solde doublé en moyenne en **≈ 44 435 tours**
 
 ➡️ L’IA devient clairement gagnante.
-
-
 
 #### 4. Résultats – 100 simulations (précision correcte)
 
@@ -71,8 +66,6 @@ L’objectif est d’obtenir des probabilités empiriques équivalentes entre ma
 
 ➡️ Confirmation du caractère perdant de la stratégie.
 
-
-
 ##### coef = 3.0
 
 - Ratio moyen : **2.00**
@@ -80,10 +73,10 @@ L’objectif est d’obtenir des probabilités empiriques équivalentes entre ma
 - Taux de victoire : **≈ 0.429**
 - Solde doublé en moyenne en **44 770 tours**
 
-
 #### 5. Recherche du coefficient minimal gagnant
 
 ##### Protocole
+
 - `coefBlackjack` incrémenté de **0.001**
 - Arrêt si :
   - ratio minimum ≥ 1.0
@@ -91,11 +84,10 @@ L’objectif est d’obtenir des probabilités empiriques équivalentes entre ma
 - 10 parties, 100 000 tours max
 
 ##### Résultats
+
 - coef = **2.545** → ratio moyen **1.05**
 - coef = **2.542** → ratio moyen **1.063**
 - Ratio min : **1.0**, taux de victoire : **≈ 0.43**
-
-
 
 ##### 6. Conclusion
 
@@ -107,22 +99,23 @@ Ces résultats valident la cohérence probabiliste de l’IA et l’impact déte
 
 #
 
-
 ### Résumé
+
 Le jeu s’appuie sur plusieurs règles clés du BlackJack : gestion des mains, valeur des cartes, tirage automatisé du croupier, calcul des gains, ainsi que des fonctionnalités avancées comme la double mise, l’assurance ou l’abandon (selon la version du rendu).
 
 Ce projet introduit les bases de la programmation en Java, la gestion de tableaux, la création d’un petit moteur de jeu, et l'organisation d’un code modulaire. Le deuxième rendu étendra ce travail vers une version orientée objet et intégrera une IA capable de décider ses actions.
 
-
 #
+
 ### Implication :
 
 - Quentin PLADEAU : 99.5 %
 - Louis Ragout : 0.5%
 
 #### Précisions :
+
 - 3 petite méthodes dans le rendu 1 réalisées par Louis avec Quentin. Quentin a par la suite implémenté ces meme méthodes
-- Intégralité restante du projet réalisé par Quetin
+- Intégralité restante du projet réalisé par Quentin
 
 #
 
@@ -131,4 +124,4 @@ Ce projet introduit les bases de la programmation en Java, la gestion de tableau
 
 #
 
-*by Quentin*
+_by Quentin_
