@@ -161,7 +161,7 @@ public class Player {
     /**
      * Action : Gère l'option d'assurance contre le Blackjack du croupier.
      * Pré-requis : La carte visible du croupier doit être un As.
-     * Le coût est fixé au quart (1/4) de la mise actuelle.
+     * Le coût est fixé au quart (1/4.0) de la mise actuelle.
      */
     public void chooseInsurance() {
         if(this.ui.askForInsurance(this.human, this.bet / 4.0, this.strategy.chooseInsurance())) {
